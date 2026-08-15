@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Build Your Link</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="theme-glass-dark">
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">✨ <span>Build Your Link</span></a>
+      <ul class="nav-links">
+        <li style="color: #a0aec0; font-size: 0.95rem;">Logged in as: <strong id="header-username" style="color: #fff;">...</strong></li>
+        <li><a href="#" id="view-my-page-btn" target="_blank" class="nav-btn secondary">🔗 View Page</a></li>
+        <li><button onclick="openShareModal()" class="nav-btn primary">📥 Share Page</button></li>
+        <li id="admin-nav-item" style="display: none;"><a href="/admin.html" class="nav-btn secondary">🛡️ Admin</a></li>
+        <li><button onclick="handleLogout()" class="nav-btn secondary" style="cursor:pointer; background:none;">Log Out</button></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Dashboard Workspace -->
+  <main class="dashboard-wrapper">
+    
+    <!-- Left Configuration Panel -->
+    <section class="config-panel">
+      
+      <!-- Control Tabs -->
+      <div class="dashboard-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-links')">🔗 Links</button>
+        <button class="tab-btn" onclick="switchTab('tab-profile')">👤 Profile</button>
+        <button class="tab-btn" onclick="switchTab('tab-design')">🎨 Design</button>
+        <button class="tab-btn" onclick="switchTab('tab-analytics')">📊 Analytics</button>
+      </div>
+
+      <!-- TAB 1: LINKS MANAGEMENT -->
+      <div id="tab-links" class="tab-content active">
+        <div class="dash-card">
+          <h3>➕ Add New Link</h3>
+          <form id="add-link-form" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <input type="text" id="new-link-title" placeholder="Link Title (e.g. My Portfolio)" required style="width: 100%;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <input type="url" id="new-link-url" placeholder="Destination URL (e.g. https://portfolio.com)" required style="width: 100%;">
+            </div>
+            <button type="submit" class="btn-action" style="align-self: flex-start;">
+              <i class="fa-solid fa-plus"></i> Add Link
+            </button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>🔗 Your Links</h3>
+            <span style="font-size: 0.85rem; color: #718096;">Drag handles or click arrows to reorder</span>
+          </div>
+          
+          <!-- Links container -->
+          <div id="links-container">
+            <!-- Populated via JS -->
+            <p style="color: #718096; font-style: italic; text-align: center; padding: 2rem;">Loading links...</p>
+          </div>
+
+          <button id="save-order-btn" class="btn-action outline" style="display: none; margin-top: 1rem;">
+            💾 Save Ordering
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: PROFILE CUSTOMIZATION -->
+      <div id="tab-profile" class="tab-content">
+        <div class="dash-card">
+          <h3>👤 Edit Bio Details</h3>
+          <form id="profile-details-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div class="avatar-edit-wrapper">
+              <img id="profile-avatar-preview" src="https://ui-avatars.com/api/?name=User&background=a855f7&color=fff" alt="Avatar Preview">
+              <div style="flex: 1;">
+                <label class="form-group" style="margin-bottom: 0.5rem; display:block;">Avatar URL</label>
+                <input type="text" id="profile-avatar-url" placeholder="https://domain.com/my-pic.png" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); padding: 0.6rem 0.8rem; border-radius: 8px; color: #fff; outline: none;">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-display-name">Display Name</label>
+              <input type="text" id="profile-display-name" placeholder="Your Name" style="width: 100%;">
+            </div>
+
+            <div class="form-group">
+              <label for="profile-bio">Bio</label>
+              <textarea id="profile-bio" rows="3" placeholder="Write a short description..." style="width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.75rem 1rem; border-radius: 8px; color: #fff; font-size: 1rem; outline: none; resize: vertical;"></textarea>
+            </div>
+
+            <button type="submit" class="btn-action" style="align-self: flex-start;">Save Profile Details</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <h3>📱 Social Media Connectors</h3>
+          <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.5rem;">Add social links. Leave empty to hide icon.</p>
+          
+          <form id="social-links-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label><i class="fa-brands fa-instagram" style="color: #e1306c;"></i> Instagram</label>
+              <input type="text" id="social-instagram" placeholder="handle or full link">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-brands fa-x-twitter" style="color: #fff;"></i> Twitter / X</label>
+              <input type="text" id="social-twitter" placeholder="handle or full link">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-brands fa-youtube" style="color: #ff0000;"></i> YouTube</label>
+              <input type="text" id="social-youtube" placeholder="channel link">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-brands fa-tiktok" style="color: #00f2fe;"></i> TikTok</label>
+              <input type="text" id="social-tiktok" placeholder="username">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-brands fa-facebook" style="color: #1877f2;"></i> Facebook</label>
+              <input type="text" id="social-facebook" placeholder="profile link">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-brands fa-github" style="color: #fff;"></i> GitHub</label>
+              <input type="text" id="social-github" placeholder="username">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-brands fa-linkedin" style="color: #0077b5;"></i> LinkedIn</label>
+              <input type="text" id="social-linkedin" placeholder="profile link">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp</label>
+              <input type="text" id="social-whatsapp" placeholder="+123456789">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-solid fa-envelope" style="color: #a855f7;"></i> Email</label>
+              <input type="email" id="social-email" placeholder="you@domain.com">
+            </div>
+            <div class="form-group">
+              <label><i class="fa-solid fa-phone" style="color: #06b6d4;"></i> Phone</label>
+              <input type="text" id="social-phone" placeholder="+123456789">
+            </div>
+            
+            <button type="submit" class="btn-action" style="grid-column: 1 / span 2; justify-self: flex-start; margin-top: 0.5rem;">Save Social Links</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 3: CUSTOM DESIGN THEMES -->
+      <div id="tab-design" class="tab-content">
+        <div class="dash-card">
+          <h3>🎨 Choose Theme</h3>
+          <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.5rem;">Select an aesthetic style for your link page.</p>
+          
+          <div class="theme-selector-grid">
+            
+            <div class="theme-card-option" data-theme="glass-dark" onclick="selectTheme('glass-dark')">
+              <div class="theme-preview-color" style="background: radial-gradient(circle, #151a24 0%, #080a0f 100%); border: 1px solid rgba(255,255,255,0.12);"></div>
+              <strong style="font-size:0.85rem;">Glass Dark</strong>
+            </div>
+
+            <div class="theme-card-option" data-theme="sunset-glow" onclick="selectTheme('sunset-glow')">
+              <div class="theme-preview-color" style="background: radial-gradient(circle, #f87171 0%, #ec4899 90%);"></div>
+              <strong style="font-size:0.85rem;">Sunset Glow</strong>
+            </div>
+
+            <div class="theme-card-option" data-theme="forest-breeze" onclick="selectTheme('forest-breeze')">
+              <div class="theme-preview-color" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #166534;"></div>
+              <strong style="font-size:0.85rem; color:#f1f3f9;">Forest Breeze</strong>
+            </div>
+
+            <div class="theme-card-option" data-theme="midnight-aurora" onclick="selectTheme('midnight-aurora')">
+              <div class="theme-preview-color" style="background: linear-gradient(225deg, #09090e 0%, #110722 50%, #030a16 100%); position:relative; overflow:hidden;">
+                <div style="position:absolute; width:15px; height:15px; border-radius:50%; background:#a855f7; filter:blur(4px); top:3px; left:3px;"></div>
+                <div style="position:absolute; width:15px; height:15px; border-radius:50%; background:#06b6d4; filter:blur(4px); bottom:3px; right:3px;"></div>
+              </div>
+              <strong style="font-size:0.85rem;">Midnight Aurora</strong>
+            </div>
+
+            <div class="theme-card-option" data-theme="neo-brutalism" onclick="selectTheme('neo-brutalism')">
+              <div class="theme-preview-color" style="background: #fde047; border: 2px solid #000; box-shadow: 2px 2px 0px #000;"></div>
+              <strong style="font-size:0.85rem;">Neo-Brutalism</strong>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: ANALYTICS DASHBOARD -->
+      <div id="tab-analytics" class="tab-content">
+        <!-- Main total boxes -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="dash-card" style="text-align: center;">
+            <p style="color: #718096; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Page Views</p>
+            <h2 style="font-size: 2.2rem; font-weight: 800; color: #06b6d4; margin-top: 0.5rem;" id="analytics-views">0</h2>
+          </div>
+          <div class="dash-card" style="text-align: center;">
+            <p style="color: #718096; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Link Clicks</p>
+            <h2 style="font-size: 2.2rem; font-weight: 800; color: #a855f7; margin-top: 0.5rem;" id="analytics-clicks">0</h2>
+          </div>
+        </div>
+
+        <!-- Weekly Performance chart -->
+        <div class="dash-card">
+          <h3>📊 Views & Clicks (Last 7 Days)</h3>
+          <div class="chart-container">
+            <!-- Custom responsive SVG graph will go here -->
+            <svg id="analytics-svg" viewBox="0 0 500 200" style="width: 100%; height: 100%; overflow: visible;"></svg>
+          </div>
+        </div>
+
+        <!-- Link details table -->
+        <div class="dash-card">
+          <h3>🔗 Clicks per Link</h3>
+          <div style="overflow-x: auto; margin-top: 1rem;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;" id="analytics-links-table">
+              <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                  <th style="padding: 0.75rem 0.5rem; color: #718096;">Link Name</th>
+                  <th style="padding: 0.75rem 0.5rem; color: #718096; width: 100px; text-align: right;">Clicks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Top referrers -->
+        <div class="dash-card">
+          <h3>🌐 Top Referrers</h3>
+          <ul id="analytics-referrers-list" style="list-style: none; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Populated via JS -->
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right Live Mobile Preview Panel -->
+    <aside class="preview-panel">
+      <div class="preview-title">
+        <i class="fa-solid fa-mobile-screen"></i> Live Page Preview
+      </div>
+      
+      <div class="phone-mockup">
+        <!-- Pointer directly into generic profile page; updates on postMessage sync -->
+        <iframe id="phone-viewport-iframe" class="phone-viewport" src="about:blank"></iframe>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- SHARING MODAL -->
+  <div class="modal-overlay" id="share-modal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>📥 Share Your Page</h3>
+        <button onclick="closeShareModal()" style="background: none; border: none; color: #718096; font-size: 1.2rem; cursor: pointer;">&times;</button>
+      </div>
+
+      <div class="form-group" style="text-align: left;">
+        <label>Your Link</label>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+          <input type="text" id="share-link-input" readonly style="flex:1;" value="Loading...">
+          <button onclick="copyShareLink()" class="btn-action" style="padding: 0 1rem;" title="Copy to Clipboard">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem;">
+        <p style="font-size: 0.9rem; color: #a0aec0; margin-bottom: 1rem;">QR Code</p>
+        <div class="qr-canvas-holder">
+          <canvas id="qr-canvas" width="180" height="180"></canvas>
+        </div>
+        <button onclick="downloadQrCode()" class="btn-action outline" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
+          <i class="fa-solid fa-download"></i> Download QR Code
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR code builder library (easy, zero dependencies, client-side) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <!-- Main Dashboard Script logic -->
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

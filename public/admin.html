@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Build Your Link</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="theme-glass-dark">
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">✨ <span>Build Your Link Admin</span></a>
+      <ul class="nav-links">
+        <li><a href="/dashboard.html" class="nav-btn secondary">Go to Dashboard</a></li>
+        <li><button onclick="handleLogout()" class="nav-btn secondary" style="cursor:pointer; background:none;">Log Out</button></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Admin Workspace -->
+  <main class="admin-container">
+    <div class="admin-header">
+      <div>
+        <h1 style="font-size: 2rem; font-weight: 800; color: #fff;">Platform Moderation Dashboard</h1>
+        <p style="color: #a0aec0; margin-top: 0.25rem;">Monitor platform usage and manage registered profiles</p>
+      </div>
+      <button onclick="fetchAdminData()" class="btn-action outline" title="Refresh Platform Metrics">
+        <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
+      </button>
+    </div>
+
+    <!-- Platform Stats Cards -->
+    <div class="admin-stats-grid">
+      <div class="stat-box">
+        <div class="label">Total Users</div>
+        <div class="value" id="stat-users">0</div>
+      </div>
+      <div class="stat-box" style="border-color: rgba(168, 85, 247, 0.25);">
+        <div class="label">Total Links created</div>
+        <div class="value" id="stat-links">0</div>
+      </div>
+      <div class="stat-box" style="border-color: rgba(6, 182, 212, 0.25);">
+        <div class="label">Total Page Views</div>
+        <div class="value" id="stat-views">0</div>
+      </div>
+      <div class="stat-box" style="border-color: rgba(253, 224, 71, 0.25);">
+        <div class="label">Total Link Clicks</div>
+        <div class="value" id="stat-clicks">0</div>
+      </div>
+    </div>
+
+    <!-- Active User List -->
+    <div class="dash-card">
+      <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-users-gear"></i> Platform Accounts</h3>
+      
+      <div class="admin-table-container">
+        <table class="admin-table" id="users-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Created Links</th>
+              <th>Profile Views</th>
+              <th>Registered On</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Populated via JS -->
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 2rem; color: #718096; font-style: italic;">
+                Loading registered accounts...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

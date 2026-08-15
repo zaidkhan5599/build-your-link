@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In - Build Your Link</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-wrapper">
+  
+  <div class="auth-card">
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <a href="/" style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">✨ Build Your Link</a>
+    </div>
+    
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Access your links dashboard and analytics</p>
+
+    <!-- Error container -->
+    <div id="error-box" class="error-message"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="loginIdentifier">Username or Email</label>
+        <input type="text" id="loginIdentifier" placeholder="e.g. johndoe" required autocomplete="username">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="auth-btn" id="submit-btn">Log In</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="/register.html">Sign up for free</a>
+    </div>
+  </div>
+
+  <script>
+    // If user is already logged in, redirect them to dashboard
+    fetch('/api/auth/status')
+      .then(res => res.json())
+      .then(data => {
+        if (data.loggedIn) {
+          window.location.href = '/dashboard.html';
+        }
+      });
+
+    // Handle Form Submit
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const loginIdentifier = document.getElementById('loginIdentifier').value;
+      const password = document.getElementById('password').value;
+      const errorBox = document.getElementById('error-box');
+      const submitBtn = document.getElementById('submit-btn');
+
+      // Clear previous error
+      errorBox.style.display = 'none';
+      submitBtn.textContent = 'Verifying...';
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ loginIdentifier, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed.');
+        }
+
+        // Success - Go to dashboard
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.style.display = 'block';
+        submitBtn.textContent = 'Log In';
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

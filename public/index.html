@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create a single link-in-bio webpage. Connect all your social media platforms, stores, portfolios, and contact links on a single shareable page.">
+  <title>Build Your Link - One Link to Connect Them All</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="theme-glass-dark">
+  
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">
+        ✨ <span>Build Your Link</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="/login.html" class="nav-btn secondary">Log In</a></li>
+        <li><a href="/register.html" class="nav-btn primary">Sign Up Free</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="hero-section">
+    <div class="hero-content">
+      <h1>The Only Link <br>Your Bio Will <span>Ever Need</span></h1>
+      <p>
+        Create a gorgeous, mobile-responsive page to share your social media, stores, videos, music, and contact details in seconds. An all-in-one link-in-bio built for creators, businesses, and freelancers.
+      </p>
+      
+      <!-- Claim Username input -->
+      <form class="claim-form" id="claim-form">
+        <span>buildyourlink/</span>
+        <input type="text" id="claim-username" placeholder="yourname" required autocomplete="off" spellcheck="false">
+        <button type="submit">Claim Page</button>
+      </form>
+      
+      <p style="font-size: 0.85rem; color: #718096; margin-top: 0.75rem; margin-bottom: 0;">
+        🔥 No configuration needed. Get your custom QR code instantly.
+      </p>
+    </div>
+
+    <!-- Live Mockup Demonstration -->
+    <div class="mockup-container">
+      <div class="landing-mockup">
+        <!-- Displaying placeholder data, or a preview -->
+        <div style="padding: 2.5rem 1.5rem; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; background: radial-gradient(circle, #1a1b2f 0%, #0d0e15 100%);">
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #06b6d4); margin: 0 auto 1rem auto; display: flex; align-items: center; justify-content: center; font-size: 2rem;">🦄</div>
+          <h3 style="font-size: 1.4rem; color: #fff; margin-bottom: 0.25rem;">Alex Creator</h3>
+          <p style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 1.5rem;">Visual Artist & YouTuber</p>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%;">
+            <div style="background: rgba(255,255,255,0.06); padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600; font-size: 0.9rem;">🎥 Watch My Latest Video</div>
+            <div style="background: rgba(255,255,255,0.06); padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600; font-size: 0.9rem;">🛍️ Shop My Merch</div>
+            <div style="background: rgba(255,255,255,0.06); padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600; font-size: 0.9rem;">💬 Text Me on WhatsApp</div>
+          </div>
+          <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; color: #a0aec0; font-size: 1.1rem;">
+            <span>📸</span> <span>🐦</span> <span>🎵</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Features Grid Section -->
+  <section class="features-section">
+    <div class="features-container">
+      <h2>Everything You Need in One Place</h2>
+      <div class="features-grid">
+        
+        <div class="feature-card">
+          <div class="feature-icon">⛓️</div>
+          <h3>Link Management</h3>
+          <p>Add, edit, delete and drag-and-drop to reorder links in real-time. Instantly see how your visitors will view them.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>Stunning Custom Themes</h3>
+          <p>Choose from pre-designed templates with smooth CSS gradients, glassmorphism, or high-contrast neo-brutalist designs.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Real-time Analytics</h3>
+          <p>Keep track of page views, referral sources, and button clicks with integrated visual SVG dashboards and charts.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>100% Mobile Ready</h3>
+          <p>Perfect rendering on iOS, Android, tablets and computers. Your links page loads instantly and feels premium.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="padding: 2.5rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; color: #718096;">
+    <p>&copy; 2026 Build Your Link Inc. Created for local developer verification.</p>
+  </footer>
+
+  <script>
+    // Handle redirecting username claim
+    document.getElementById('claim-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('claim-username').value.trim();
+      if (username) {
+        window.location.href = `/register.html?username=${encodeURIComponent(username)}`;
+      }
+    });
+
+    // Check if user is already logged in, update header
+    fetch('/api/auth/status')
+      .then(res => res.json())
+      .then(data => {
+        if (data.loggedIn) {
+          const linksHtml = `
+            <li><a href="/dashboard.html" class="nav-btn primary">Go to Dashboard</a></li>
+            ${data.user.role === 'admin' ? '<li><a href="/admin.html" class="nav-btn secondary">Admin Panel</a></li>' : ''}
+            <li><button onclick="logout()" class="nav-btn secondary" style="cursor:pointer; background:none;">Log Out</button></li>
+          `;
+          document.getElementById('nav-links').innerHTML = linksHtml;
+        }
+      });
+
+    function logout() {
+      fetch('/api/auth/logout', { method: 'POST' })
+        .then(() => window.location.reload());
+    }
+  </script>
+</body>
+</html>

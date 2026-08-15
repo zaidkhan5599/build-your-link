@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found - Build Your Link</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-wrapper">
+  
+  <div class="auth-card" style="text-align: center;">
+    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔍</div>
+    <h2>Page Not Found</h2>
+    <p class="subtitle" style="margin-bottom: 1.5rem;">
+      The Build Your Link page you are looking for does not exist yet.
+    </p>
+
+    <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.25rem; margin-bottom: 2rem;">
+      <p style="font-size: 0.95rem; margin-bottom: 0.5rem; color: #a0aec0;">Is this your handle?</p>
+      <p style="font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 1rem;">
+        buildyourlink/<span><span id="requested-username">username</span></span>
+      </p>
+      <button onclick="claimThis()" class="btn-action" style="width: 100%; justify-content: center;">
+        Claim This Handle
+      </button>
+    </div>
+
+    <a href="/" style="color: #a855f7; font-weight: 600; font-size: 0.95rem; text-decoration: none;">
+      &larr; Go back home
+    </a>
+  </div>
+
+  <script>
+    // Extract requested username from url path
+    const requested = window.location.pathname.substring(1).split('/')[0];
+    const cleanRequested = requested.toLowerCase().replace(/[^a-z0-9_]/g, '');
+    
+    if (cleanRequested) {
+      document.getElementById('requested-username').textContent = cleanRequested;
+    }
+
+    function claimThis() {
+      window.location.href = `/register.html?username=${encodeURIComponent(cleanRequested || '')}`;
+    }
+  </script>
+</body>
+</html>

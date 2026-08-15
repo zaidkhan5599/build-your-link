@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Build Your Link</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- FontAwesome for nice brand icons in custom links -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="profile-wrapper theme-glass-dark" id="profile-body">
+  
+  <!-- Content Container -->
+  <div class="profile-container" id="profile-container" style="display: none;">
+    
+    <!-- User Profile Details Card -->
+    <div class="profile-card">
+      <div class="avatar-container">
+        <img id="avatar-img" src="" alt="Avatar" class="profile-avatar">
+      </div>
+      <h1 class="profile-name" id="display-name"></h1>
+      <p class="profile-bio" id="bio-text"></p>
+      
+      <!-- Social Media Icons Row -->
+      <div class="profile-socials" id="socials-row">
+        <!-- Social buttons added via JS -->
+      </div>
+    </div>
+
+    <!-- Active Link Buttons Stack -->
+    <div class="links-stack" id="links-stack">
+      <!-- Link buttons populated via JS -->
+    </div>
+
+    <!-- Powered by Badge / Brand Footer -->
+    <div class="branding-footer">
+      <a href="/" target="_blank" class="badge">✨ Get Your Own Page</a>
+      <p>Powered by Build Your Link</p>
+    </div>
+
+  </div>
+
+  <!-- Error / 404 message template inside page (if fetch fails) -->
+  <div id="error-container" style="display:none; text-align:center; padding: 2rem;">
+    <h2>Profile Not Found</h2>
+    <p style="color: #a0aec0; margin: 1rem 0;">The link page you are trying to visit does not exist.</p>
+    <a href="/" class="btn-action">Create Your Page</a>
+  </div>
+
+  <script src="/js/profile.js"></script>
+</body>
+</html>
