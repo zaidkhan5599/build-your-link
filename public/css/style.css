@@ -1642,3 +1642,147 @@ input:checked + .slider:before {
     font-size: 1.05rem !important;
   }
 }
+
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVENESS OVERRIDES
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Navigation headers: index, dashboard, admin */
+  .nav-container {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 1rem !important;
+  }
+  
+  .nav-container > div {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  /* Auth buttons in header */
+  .landing-auth-btns, #nav-links {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+  
+  .landing-btn, .nav-btn {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Landing hero section elements */
+  .landing-hero {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    padding: 2.5rem 1rem !important;
+    gap: 2rem !important;
+  }
+
+  .landing-hero h1 {
+    font-size: 2.25rem !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.5px !important;
+  }
+
+  .hero-badge {
+    margin-bottom: 1rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .hero-desc {
+    font-size: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0 0.5rem !important;
+  }
+
+  /* Stack username input form on mobile */
+  .hero-claim-box {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 1rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 0.75rem !important;
+  }
+
+  .hero-claim-box span {
+    text-align: center !important;
+    padding-left: 0 !important;
+  }
+
+  .hero-claim-box input {
+    text-align: center !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 0.5rem 0 !important;
+    width: 100% !important;
+  }
+
+  .hero-claim-box button {
+    width: 100% !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Hide simulated phone preview on actual mobile landing page */
+  .hero-mockup-block, .landing-mockup-wrapper {
+    display: none !important;
+  }
+
+  /* Social proof circles alignment */
+  .social-proof-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Pitch feature section */
+  .pitch-section {
+    padding: 3rem 1.25rem !important;
+  }
+
+  .pitch-title {
+    margin-bottom: 2rem !important;
+  }
+
+  .pitch-title h2 {
+    font-size: 1.75rem !important;
+  }
+
+  /* Footer responsiveness */
+  footer div, footer .max-width-1200 {
+    justify-content: center !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Authentication card pages adjustments */
+  .auth-wrapper {
+    padding: 2rem 1rem !important;
+  }
+
+  .auth-card {
+    padding: 1.5rem !important;
+    border-radius: 16px !important;
+  }
+
+  .auth-card h2 {
+    font-size: 1.5rem !important;
+  }
+
+  /* Public profiles margins and spacing on narrow viewports */
+  .profile-wrapper {
+    padding: 1rem 0.5rem !important;
+  }
+
+  .profile-card {
+    padding: 1.25rem 0.75rem !important;
+  }
+}
