@@ -9,6 +9,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="profile-wrapper theme-glass-dark" id="profile-body">
+
+  <!-- Desktop Layout Toggle Switch Widget (Hidden on actual mobile screens) -->
+  <div class="layout-toggle-pill" id="layout-toggle-pill">
+    <button class="toggle-btn active" id="toggle-mobile" title="Simulated Mobile Layout">
+      <i class="fa-solid fa-mobile-screen-button"></i> <span>Mobile View</span>
+    </button>
+    <button class="toggle-btn" id="toggle-web" title="Full Desktop Webpage">
+      <i class="fa-solid fa-laptop"></i> <span>Web View</span>
+    </button>
+  </div>
   
   <!-- Content Container -->
   <div class="profile-container" id="profile-container" style="display: none;">
@@ -17,8 +27,12 @@
     <div class="profile-card">
       <div class="avatar-container">
         <img id="avatar-img" src="" alt="Avatar" class="profile-avatar">
+        <span class="avatar-verified" id="avatar-verified" style="display: none;"><i class="fa-solid fa-check"></i></span>
       </div>
-      <h1 class="profile-name" id="display-name"></h1>
+      <h1 class="profile-name">
+        <span id="display-name"></span>
+        <i class="fa-solid fa-circle-check name-verified-badge" id="name-verified" style="display: none;"></i>
+      </h1>
       <p class="profile-bio" id="bio-text"></p>
       
       <!-- Social Media Icons Row -->
@@ -30,6 +44,13 @@
     <!-- Active Link Buttons Stack -->
     <div class="links-stack" id="links-stack">
       <!-- Link buttons populated via JS -->
+    </div>
+
+    <!-- Contact Me Footer link -->
+    <div style="text-align: center; margin-top: 1.5rem; margin-bottom: 0.5rem;">
+      <a id="contact-footer" href="" class="contact-footer-link" style="display: none;">
+        <i class="fa-solid fa-envelope"></i> Contact Me
+      </a>
     </div>
 
     <!-- Powered by Badge / Brand Footer -->

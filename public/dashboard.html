@@ -7,16 +7,29 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="theme-glass-dark">
+<body class="theme-midnight-premium">
 
   <!-- Header -->
   <header>
-    <div class="nav-container">
-      <a href="/" class="logo">✨ <span>Build Your Link</span></a>
-      <ul class="nav-links">
-        <li style="color: #a0aec0; font-size: 0.95rem;">Logged in as: <strong id="header-username" style="color: #fff;">...</strong></li>
+    <div class="nav-container" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+      <div style="display:flex; align-items:center; gap:2rem;">
+        <a href="/" class="logo">✨ <span>Build Your Link</span></a>
+        
+        <!-- Editor vs Analytics Toggle Links -->
+        <div class="nav-toggle-links">
+          <button id="nav-btn-editor" class="nav-toggle-btn active" onclick="setView('editor')">
+            <i class="fa-solid fa-pen-to-square"></i> Editor
+          </button>
+          <button id="nav-btn-analytics" class="nav-toggle-btn" onclick="setView('analytics')">
+            <i class="fa-solid fa-chart-line"></i> Analytics
+          </button>
+        </div>
+      </div>
+
+      <ul class="nav-links" style="display:flex; align-items:center; gap:1.25rem;">
+        <li style="color: #94a3b8; font-size: 0.9rem;">Logged in as: <strong id="header-username" style="color: #fff;">...</strong></li>
         <li><a href="#" id="view-my-page-btn" target="_blank" class="nav-btn secondary">🔗 View Page</a></li>
-        <li><button onclick="openShareModal()" class="nav-btn primary">📥 Share Page</button></li>
+        <li><button onclick="openShareModal()" class="nav-btn primary">Share Page</button></li>
         <li id="admin-nav-item" style="display: none;"><a href="/admin.html" class="nav-btn secondary">🛡️ Admin</a></li>
         <li><button onclick="handleLogout()" class="nav-btn secondary" style="cursor:pointer; background:none;">Log Out</button></li>
       </ul>
@@ -24,232 +37,333 @@
   </header>
 
   <!-- Dashboard Workspace -->
-  <main class="dashboard-wrapper">
+  <main class="dashboard-wrapper" id="dashboard-main-wrapper">
     
-    <!-- Left Configuration Panel -->
-    <section class="config-panel">
+    <!-- COLUMN 1: CONTENT EDITOR (Class: editor-sec) -->
+    <section class="config-panel editor-sec" id="editor-content-sec" style="display:flex; flex-direction:column; gap:1.5rem;">
       
-      <!-- Control Tabs -->
-      <div class="dashboard-tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-links')">🔗 Links</button>
-        <button class="tab-btn" onclick="switchTab('tab-profile')">👤 Profile</button>
-        <button class="tab-btn" onclick="switchTab('tab-design')">🎨 Design</button>
-        <button class="tab-btn" onclick="switchTab('tab-analytics')">📊 Analytics</button>
+      <!-- Profile Metadata details card -->
+      <div class="dash-card">
+        <h3>👤 Edit Profile Header</h3>
+        <form id="profile-details-form" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+          <div class="avatar-edit-wrapper" style="display:flex; align-items:center; gap:1rem;">
+            <img id="profile-avatar-preview" src="https://ui-avatars.com/api/?name=User&background=a855f7&color=fff" alt="Avatar Preview" style="width:64px; height:64px; border-radius:50%; object-fit:cover;">
+            <div style="flex: 1;">
+              <input type="text" id="profile-avatar-url" placeholder="Avatar Image URL (leave blank for initials)" style="width: 100%; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); padding: 0.5rem; border-radius: 8px; color: #fff; outline: none; font-size:0.9rem;">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <input type="text" id="profile-display-name" placeholder="Display Name" style="width: 100%;">
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <textarea id="profile-bio" rows="2" placeholder="Write a short biography..." style="width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 0.6rem; border-radius: 8px; color: #fff; font-size: 0.95rem; outline: none; resize: vertical;"></textarea>
+          </div>
+
+          <button type="submit" class="btn-action" style="align-self: flex-start; padding: 0.5rem 1rem; font-size:0.85rem;">Save Header Details</button>
+        </form>
       </div>
 
-      <!-- TAB 1: LINKS MANAGEMENT -->
-      <div id="tab-links" class="tab-content active">
-        <div class="dash-card">
-          <h3>➕ Add New Link</h3>
-          <form id="add-link-form" style="display: flex; flex-direction: column; gap: 1rem;">
-            <div class="form-group" style="margin-bottom: 0;">
-              <input type="text" id="new-link-title" placeholder="Link Title (e.g. My Portfolio)" required style="width: 100%;">
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-              <input type="url" id="new-link-url" placeholder="Destination URL (e.g. https://portfolio.com)" required style="width: 100%;">
-            </div>
-            <button type="submit" class="btn-action" style="align-self: flex-start;">
-              <i class="fa-solid fa-plus"></i> Add Link
-            </button>
-          </form>
-        </div>
-
-        <div class="dash-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h3>🔗 Your Links</h3>
-            <span style="font-size: 0.85rem; color: #718096;">Drag handles or click arrows to reorder</span>
-          </div>
-          
-          <!-- Links container -->
-          <div id="links-container">
-            <!-- Populated via JS -->
-            <p style="color: #718096; font-style: italic; text-align: center; padding: 2rem;">Loading links...</p>
+      <!-- Add Block elements card -->
+      <div class="dash-card">
+        <h3>➕ Add Block Element</h3>
+        <p style="color: #718096; font-size: 0.8rem; margin-bottom: 1rem;">Choose the block type below to insert links, dividers or video feeds.</p>
+        
+        <form id="add-link-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="block-type-select" style="font-size:0.8rem; color:#718096; font-weight:600; margin-bottom:4px; display:block;">Block Type</label>
+            <select id="block-type-select" onchange="toggleBlockTypeInputs()" style="width:100%; background:#1c2541; border:1px solid rgba(255,255,255,0.08); padding:0.6rem; border-radius:8px; color:#fff; outline:none; cursor:pointer;">
+              <option value="link">🔗 Standard Link Button</option>
+              <option value="instagram">📸 Instagram Link Card</option>
+              <option value="facebook">👥 Facebook Link Card</option>
+              <option value="linkedin">💼 LinkedIn Link Card</option>
+              <option value="text">✏️ Text Section Divider</option>
+              <option value="youtube">🎥 YouTube Video Embed</option>
+            </select>
           </div>
 
-          <button id="save-order-btn" class="btn-action outline" style="display: none; margin-top: 1rem;">
-            💾 Save Ordering
+          <div class="form-group" id="block-title-group" style="margin-bottom: 0;">
+            <input type="text" id="new-link-title" placeholder="Button Title (e.g. My Website)" required style="width: 100%;">
+          </div>
+
+          <div class="form-group" id="block-url-group" style="margin-bottom: 0;">
+            <input type="url" id="new-link-url" placeholder="Destination URL (e.g. https://domain.com)" required style="width: 100%;">
+          </div>
+
+          <button type="submit" class="btn-action" style="align-self: flex-start; padding: 0.6rem 1.2rem;">
+            <i class="fa-solid fa-plus"></i> Add Block
           </button>
-        </div>
+        </form>
       </div>
 
-      <!-- TAB 2: PROFILE CUSTOMIZATION -->
-      <div id="tab-profile" class="tab-content">
-        <div class="dash-card">
-          <h3>👤 Edit Bio Details</h3>
-          <form id="profile-details-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
-            <div class="avatar-edit-wrapper">
-              <img id="profile-avatar-preview" src="https://ui-avatars.com/api/?name=User&background=a855f7&color=fff" alt="Avatar Preview">
-              <div style="flex: 1;">
-                <label class="form-group" style="margin-bottom: 0.5rem; display:block;">Avatar URL</label>
-                <input type="text" id="profile-avatar-url" placeholder="https://domain.com/my-pic.png" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); padding: 0.6rem 0.8rem; border-radius: 8px; color: #fff; outline: none;">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="profile-display-name">Display Name</label>
-              <input type="text" id="profile-display-name" placeholder="Your Name" style="width: 100%;">
-            </div>
-
-            <div class="form-group">
-              <label for="profile-bio">Bio</label>
-              <textarea id="profile-bio" rows="3" placeholder="Write a short description..." style="width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.75rem 1rem; border-radius: 8px; color: #fff; font-size: 1rem; outline: none; resize: vertical;"></textarea>
-            </div>
-
-            <button type="submit" class="btn-action" style="align-self: flex-start;">Save Profile Details</button>
-          </form>
+      <!-- Active Content blocks manager list -->
+      <div class="dash-card" style="flex:1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3>📋 Your Active Blocks</h3>
+          <span style="font-size: 0.75rem; color: #718096;">Swap sort weights with arrows</span>
+        </div>
+        
+        <div id="links-container" style="display:flex; flex-direction:column; gap:0.75rem;">
+          <p style="color: #718096; font-style: italic; text-align: center; padding: 2rem;">Loading blocks...</p>
         </div>
 
-        <div class="dash-card">
-          <h3>📱 Social Media Connectors</h3>
-          <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.5rem;">Add social links. Leave empty to hide icon.</p>
-          
-          <form id="social-links-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="form-group">
-              <label><i class="fa-brands fa-instagram" style="color: #e1306c;"></i> Instagram</label>
-              <input type="text" id="social-instagram" placeholder="handle or full link">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-brands fa-x-twitter" style="color: #fff;"></i> Twitter / X</label>
-              <input type="text" id="social-twitter" placeholder="handle or full link">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-brands fa-youtube" style="color: #ff0000;"></i> YouTube</label>
-              <input type="text" id="social-youtube" placeholder="channel link">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-brands fa-tiktok" style="color: #00f2fe;"></i> TikTok</label>
-              <input type="text" id="social-tiktok" placeholder="username">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-brands fa-facebook" style="color: #1877f2;"></i> Facebook</label>
-              <input type="text" id="social-facebook" placeholder="profile link">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-brands fa-github" style="color: #fff;"></i> GitHub</label>
-              <input type="text" id="social-github" placeholder="username">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-brands fa-linkedin" style="color: #0077b5;"></i> LinkedIn</label>
-              <input type="text" id="social-linkedin" placeholder="profile link">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp</label>
-              <input type="text" id="social-whatsapp" placeholder="+123456789">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-solid fa-envelope" style="color: #a855f7;"></i> Email</label>
-              <input type="email" id="social-email" placeholder="you@domain.com">
-            </div>
-            <div class="form-group">
-              <label><i class="fa-solid fa-phone" style="color: #06b6d4;"></i> Phone</label>
-              <input type="text" id="social-phone" placeholder="+123456789">
-            </div>
-            
-            <button type="submit" class="btn-action" style="grid-column: 1 / span 2; justify-self: flex-start; margin-top: 0.5rem;">Save Social Links</button>
-          </form>
-        </div>
-      </div>
-
-      <!-- TAB 3: CUSTOM DESIGN THEMES -->
-      <div id="tab-design" class="tab-content">
-        <div class="dash-card">
-          <h3>🎨 Choose Theme</h3>
-          <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.5rem;">Select an aesthetic style for your link page.</p>
-          
-          <div class="theme-selector-grid">
-            
-            <div class="theme-card-option" data-theme="glass-dark" onclick="selectTheme('glass-dark')">
-              <div class="theme-preview-color" style="background: radial-gradient(circle, #151a24 0%, #080a0f 100%); border: 1px solid rgba(255,255,255,0.12);"></div>
-              <strong style="font-size:0.85rem;">Glass Dark</strong>
-            </div>
-
-            <div class="theme-card-option" data-theme="sunset-glow" onclick="selectTheme('sunset-glow')">
-              <div class="theme-preview-color" style="background: radial-gradient(circle, #f87171 0%, #ec4899 90%);"></div>
-              <strong style="font-size:0.85rem;">Sunset Glow</strong>
-            </div>
-
-            <div class="theme-card-option" data-theme="forest-breeze" onclick="selectTheme('forest-breeze')">
-              <div class="theme-preview-color" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #166534;"></div>
-              <strong style="font-size:0.85rem; color:#f1f3f9;">Forest Breeze</strong>
-            </div>
-
-            <div class="theme-card-option" data-theme="midnight-aurora" onclick="selectTheme('midnight-aurora')">
-              <div class="theme-preview-color" style="background: linear-gradient(225deg, #09090e 0%, #110722 50%, #030a16 100%); position:relative; overflow:hidden;">
-                <div style="position:absolute; width:15px; height:15px; border-radius:50%; background:#a855f7; filter:blur(4px); top:3px; left:3px;"></div>
-                <div style="position:absolute; width:15px; height:15px; border-radius:50%; background:#06b6d4; filter:blur(4px); bottom:3px; right:3px;"></div>
-              </div>
-              <strong style="font-size:0.85rem;">Midnight Aurora</strong>
-            </div>
-
-            <div class="theme-card-option" data-theme="neo-brutalism" onclick="selectTheme('neo-brutalism')">
-              <div class="theme-preview-color" style="background: #fde047; border: 2px solid #000; box-shadow: 2px 2px 0px #000;"></div>
-              <strong style="font-size:0.85rem;">Neo-Brutalism</strong>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 4: ANALYTICS DASHBOARD -->
-      <div id="tab-analytics" class="tab-content">
-        <!-- Main total boxes -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="dash-card" style="text-align: center;">
-            <p style="color: #718096; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Page Views</p>
-            <h2 style="font-size: 2.2rem; font-weight: 800; color: #06b6d4; margin-top: 0.5rem;" id="analytics-views">0</h2>
-          </div>
-          <div class="dash-card" style="text-align: center;">
-            <p style="color: #718096; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Link Clicks</p>
-            <h2 style="font-size: 2.2rem; font-weight: 800; color: #a855f7; margin-top: 0.5rem;" id="analytics-clicks">0</h2>
-          </div>
-        </div>
-
-        <!-- Weekly Performance chart -->
-        <div class="dash-card">
-          <h3>📊 Views & Clicks (Last 7 Days)</h3>
-          <div class="chart-container">
-            <!-- Custom responsive SVG graph will go here -->
-            <svg id="analytics-svg" viewBox="0 0 500 200" style="width: 100%; height: 100%; overflow: visible;"></svg>
-          </div>
-        </div>
-
-        <!-- Link details table -->
-        <div class="dash-card">
-          <h3>🔗 Clicks per Link</h3>
-          <div style="overflow-x: auto; margin-top: 1rem;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left;" id="analytics-links-table">
-              <thead>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                  <th style="padding: 0.75rem 0.5rem; color: #718096;">Link Name</th>
-                  <th style="padding: 0.75rem 0.5rem; color: #718096; width: 100px; text-align: right;">Clicks</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Populated via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Top referrers -->
-        <div class="dash-card">
-          <h3>🌐 Top Referrers</h3>
-          <ul id="analytics-referrers-list" style="list-style: none; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
-            <!-- Populated via JS -->
-          </ul>
-        </div>
+        <button id="save-order-btn" class="btn-action outline" style="display: none; margin-top: 1rem; width:100%; justify-content:center;">
+          💾 Save Layout Reordering
+        </button>
       </div>
 
     </section>
 
-    <!-- Right Live Mobile Preview Panel -->
-    <aside class="preview-panel">
-      <div class="preview-title">
-        <i class="fa-solid fa-mobile-screen"></i> Live Page Preview
+    <!-- COLUMN 2: DESIGN & STYLING CUSTOMIZER (Class: editor-sec) -->
+    <section class="config-panel editor-sec" id="editor-style-sec" style="display:flex; flex-direction:column; gap:1.5rem;">
+      
+      <!-- Select preset theme -->
+      <div class="dash-card">
+        <h3>🎨 Theme Presets</h3>
+        <p style="color: #718096; font-size: 0.8rem; margin-bottom: 1rem;">Choose a default professional layout foundation.</p>
+        
+        <div class="theme-selector-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap:0.5rem;">
+          
+          <div class="theme-card-option" data-theme="midnight-premium" onclick="selectTheme('midnight-premium')" style="padding:0.4rem; cursor:pointer; text-align:center;">
+            <div class="theme-preview-color" style="height:35px; border-radius:6px; background: radial-gradient(circle, #151a24 0%, #090b10 100%); border: 1px solid rgba(255,255,255,0.1);"></div>
+            <span style="font-size:0.75rem; font-weight:600; display:block; margin-top:4px;">Midnight</span>
+          </div>
+
+          <div class="theme-card-option" data-theme="warm-editorial" onclick="selectTheme('warm-editorial')" style="padding:0.4rem; cursor:pointer; text-align:center;">
+            <div class="theme-preview-color" style="height:35px; border-radius:6px; background: #fcfaf2; border:1px solid #1a1a1a;"></div>
+            <span style="font-size:0.75rem; font-weight:600; display:block; margin-top:4px;">Editorial</span>
+          </div>
+
+          <div class="theme-card-option" data-theme="corporate-navy" onclick="selectTheme('corporate-navy')" style="padding:0.4rem; cursor:pointer; text-align:center;">
+            <div class="theme-preview-color" style="height:35px; border-radius:6px; background: #1c2541;"></div>
+            <span style="font-size:0.75rem; font-weight:600; display:block; margin-top:4px;">Navy</span>
+          </div>
+
+          <div class="theme-card-option" data-theme="minimalist-ivory" onclick="selectTheme('minimalist-ivory')" style="padding:0.4rem; cursor:pointer; text-align:center;">
+            <div class="theme-preview-color" style="height:35px; border-radius:6px; background: #ffffff; border:1px solid #1e293b;"></div>
+            <span style="font-size:0.75rem; font-weight:600; display:block; margin-top:4px;">Ivory</span>
+          </div>
+
+          <div class="theme-card-option" data-theme="sage-portfolio" onclick="selectTheme('sage-portfolio')" style="padding:0.4rem; cursor:pointer; text-align:center;">
+            <div class="theme-preview-color" style="height:35px; border-radius:6px; background: #e2e8dd; border:1px solid #2d372c;"></div>
+            <span style="font-size:0.75rem; font-weight:600; display:block; margin-top:4px;">Sage</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Dynamic Fonts & Background style adjustments -->
+      <div class="dash-card">
+        <h3>🖌️ Custom Background Design</h3>
+        <p style="color: #718096; font-size: 0.8rem; margin-bottom: 1rem;">Set background styles that override preset values.</p>
+        
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="bg-type-select" style="font-size:0.8rem; color:#718096; font-weight:600; margin-bottom:4px; display:block;">Background Type</label>
+            <select id="bg-type-select" onchange="handleBgTypeChange()" style="width:100%; background:#1c2541; border:1px solid rgba(255,255,255,0.08); padding:0.6rem; border-radius:8px; color:#fff; outline:none; cursor:pointer;">
+              <option value="preset">Preset Theme Colors</option>
+              <option value="color">🎨 Solid Custom Color</option>
+              <option value="gradient">🌈 Custom Color Gradient</option>
+            </select>
+          </div>
+
+          <!-- Solid Custom color picker -->
+          <div class="form-group" id="bg-color-picker-group" style="display:none; margin-bottom:0;">
+            <label for="bg-solid-color" style="font-size:0.8rem; color:#718096; font-weight:600; margin-bottom:4px; display:block;">Choose Color</label>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <input type="color" id="bg-solid-color" onchange="syncCustomBackground()" style="background:none; border:none; width:45px; height:36px; cursor:pointer; padding:0;">
+              <input type="text" id="bg-solid-hex" placeholder="#ffffff" onchange="syncCustomBgFromHex(this.value, 'color')" style="flex:1;">
+            </div>
+          </div>
+
+          <!-- Gradient picker colors -->
+          <div class="form-group" id="bg-gradient-picker-group" style="display:none; margin-bottom:0; flex-direction:column; gap:0.5rem;">
+            <label style="font-size:0.8rem; color:#718096; font-weight:600; display:block;">Choose Gradient Colors</label>
+            <div style="display:flex; gap:1rem; width:100%;">
+              <div style="flex:1;">
+                <span style="font-size:0.75rem; color:#a0aec0;">Start Color</span>
+                <div style="display:flex; gap:0.25rem; align-items:center; margin-top:2px;">
+                  <input type="color" id="bg-grad-start" onchange="syncCustomBackground()" style="background:none; border:none; width:36px; height:32px; cursor:pointer; padding:0;">
+                  <input type="text" id="bg-grad-start-hex" placeholder="#7c3aed" style="font-size:0.8rem; padding:0.4rem; flex:1;">
+                </div>
+              </div>
+              <div style="flex:1;">
+                <span style="font-size:0.75rem; color:#a0aec0;">End Color</span>
+                <div style="display:flex; gap:0.25rem; align-items:center; margin-top:2px;">
+                  <input type="color" id="bg-grad-end" onchange="syncCustomBackground()" style="background:none; border:none; width:36px; height:32px; cursor:pointer; padding:0;">
+                  <input type="text" id="bg-grad-end-hex" placeholder="#06b6d4" style="font-size:0.8rem; padding:0.4rem; flex:1;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Typography and button styles card -->
+      <div class="dash-card">
+        <h3>✨ Card Buttons & Typography</h3>
+        <p style="color: #718096; font-size: 0.8rem; margin-bottom: 1.25rem;">Fine-tune fonts and redirect link button styling parameters.</p>
+        
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          
+          <!-- Desktop Layout Presentation -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="profile-layout-select" style="font-size:0.8rem; color:#718096; font-weight:600; margin-bottom:4px; display:block;">Desktop Page Layout</label>
+            <select id="profile-layout-select" onchange="syncCustomStyles()" style="width:100%; background:#1c2541; border:1px solid rgba(255,255,255,0.08); padding:0.6rem; border-radius:8px; color:#fff; outline:none; cursor:pointer;">
+              <option value="mobile-card">📱 Centered Mobile Card Frame</option>
+              <option value="full-page">💻 Full-Width Page Layout</option>
+            </select>
+          </div>
+
+          <!-- Typography -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="profile-font-select" style="font-size:0.8rem; color:#718096; font-weight:600; margin-bottom:4px; display:block;">Select Font Family</label>
+            <select id="profile-font-select" onchange="syncCustomStyles()" style="width:100%; background:#1c2541; border:1px solid rgba(255,255,255,0.08); padding:0.6rem; border-radius:8px; color:#fff; outline:none; cursor:pointer;">
+              <option value="Outfit">Outfit (Default Soft Sans)</option>
+              <option value="Inter">Inter (Professional Sans)</option>
+              <option value="Playfair Display">Playfair Display (Classic Serif)</option>
+              <option value="Space Grotesk">Space Grotesk (Modern Tech/Arts)</option>
+            </select>
+          </div>
+
+          <!-- Card shape corners -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="profile-shape-select" style="font-size:0.8rem; color:#718096; font-weight:600; margin-bottom:4px; display:block;">Button Corner Shape</label>
+            <select id="profile-shape-select" onchange="syncCustomStyles()" style="width:100%; background:#1c2541; border:1px solid rgba(255,255,255,0.08); padding:0.6rem; border-radius:8px; color:#fff; outline:none; cursor:pointer;">
+              <option value="rounded">Rounded Corners (Standard)</option>
+              <option value="pill">Pill / Capsule Shape</option>
+              <option value="sharp">Sharp Square Corners</option>
+            </select>
+          </div>
+
+          <!-- Card border styling -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="profile-style-select" style="font-size:0.8rem; color:#718096; font-weight:600; margin-bottom:4px; display:block;">Button Fill Style</label>
+            <select id="profile-style-select" onchange="syncCustomStyles()" style="width:100%; background:#1c2541; border:1px solid rgba(255,255,255,0.08); padding:0.6rem; border-radius:8px; color:#fff; outline:none; cursor:pointer;">
+              <option value="solid">Solid Fill Theme Background</option>
+              <option value="glass">Glassmorphic (Frosted Transparency)</option>
+              <option value="outline">Outline Border (Transparent Center)</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Social connector inputs card -->
+      <div class="dash-card">
+        <h3>📱 Connect Social Rows</h3>
+        <p style="color: #718096; font-size: 0.8rem; margin-bottom: 1.25rem;">Insert social usernames/URLs to generate profile social badges.</p>
+        
+        <form id="social-links-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-brands fa-instagram" style="color: #e1306c;"></i> Instagram</label>
+            <input type="text" id="social-instagram" placeholder="username" style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-brands fa-x-twitter" style="color: #fff;"></i> Twitter / X</label>
+            <input type="text" id="social-twitter" placeholder="username" style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-brands fa-youtube" style="color: #ff0000;"></i> YouTube</label>
+            <input type="text" id="social-youtube" placeholder="channel link" style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-brands fa-tiktok" style="color: #00f2fe;"></i> TikTok</label>
+            <input type="text" id="social-tiktok" placeholder="username" style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-brands fa-facebook" style="color: #1877f2;"></i> Facebook</label>
+            <input type="text" id="social-facebook" placeholder="profile link" style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-brands fa-github" style="color: #fff;"></i> GitHub</label>
+            <input type="text" id="social-github" placeholder="username" style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-brands fa-linkedin" style="color: #0077b5;"></i> LinkedIn</label>
+            <input type="text" id="social-linkedin" placeholder="profile link" style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp</label>
+            <input type="text" id="social-whatsapp" placeholder="+12345..." style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-solid fa-envelope" style="color: #a855f7;"></i> Email</label>
+            <input type="email" id="social-email" placeholder="you@domain.com" style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:0.75rem;"><i class="fa-solid fa-phone" style="color: #06b6d4;"></i> Phone</label>
+            <input type="text" id="social-phone" placeholder="+12345..." style="padding:0.4rem 0.6rem; font-size:0.85rem;">
+          </div>
+          
+          <button type="submit" class="btn-action" style="grid-column: 1 / span 2; justify-self: flex-start; margin-top: 0.5rem; padding:0.5rem 1rem; font-size:0.85rem;">Save Social Links</button>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- FULL ANALYTICS DASHBOARD CONTAINER (Class: view-analytics, dynamically shown) -->
+    <section class="config-panel view-analytics" id="analytics-sec" style="flex-direction:column; gap:1.5rem;">
+      
+      <!-- Total metric counters boxes -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div class="dash-card" style="text-align: center; padding: 2rem;">
+          <p style="color: #718096; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing:1px;">Total Page Views</p>
+          <h2 style="font-size: 3rem; font-weight: 800; color: #06b6d4; margin-top: 0.5rem;" id="analytics-views">0</h2>
+        </div>
+        <div class="dash-card" style="text-align: center; padding: 2rem;">
+          <p style="color: #718096; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing:1px;">Total Link Clicks</p>
+          <h2 style="font-size: 3rem; font-weight: 800; color: #a855f7; margin-top: 0.5rem;" id="analytics-clicks">0</h2>
+        </div>
+      </div>
+
+      <!-- Weekly Performance line graph -->
+      <div class="dash-card">
+        <h3>📈 Views & Clicks (Last 7 Days)</h3>
+        <div class="chart-container" style="height:250px; margin-top:1.5rem;">
+          <svg id="analytics-svg" viewBox="0 0 500 200" style="width: 100%; height: 100%; overflow: visible;"></svg>
+        </div>
+      </div>
+
+      <!-- Link by link breakdown table -->
+      <div class="dash-card">
+        <h3>🔗 Clicks per Link Block</h3>
+        <div style="overflow-x: auto; margin-top: 1rem;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left;" id="analytics-links-table">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <th style="padding: 0.75rem 0.5rem; color: #718096;">Link Block Title / URL</th>
+                <th style="padding: 0.75rem 0.5rem; color: #718096; width: 100px; text-align: right;">Clicks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top referrers list -->
+      <div class="dash-card">
+        <h3>🌐 Visitor Referrer Pathways</h3>
+        <ul id="analytics-referrers-list" style="list-style: none; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- Populated via JS -->
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- COLUMN 3: STICKY FLOATING PHONE PREVIEW (Always on Right) -->
+    <aside class="preview-panel" id="preview-mock-column">
+      <div class="preview-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <span><i class="fa-solid fa-mobile-screen"></i> Live Page Preview</span>
+        <button onclick="reloadPreview()" title="Reload Frame" style="background:none; border:none; color:#a0aec0; cursor:pointer;"><i class="fa-solid fa-rotate-right"></i></button>
       </div>
       
       <div class="phone-mockup">
-        <!-- Pointer directly into generic profile page; updates on postMessage sync -->
         <iframe id="phone-viewport-iframe" class="phone-viewport" src="about:blank"></iframe>
       </div>
     </aside>
@@ -265,7 +379,7 @@
       </div>
 
       <div class="form-group" style="text-align: left;">
-        <label>Your Link</label>
+        <label>Your Shareable URL</label>
         <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
           <input type="text" id="share-link-input" readonly style="flex:1;" value="Loading...">
           <button onclick="copyShareLink()" class="btn-action" style="padding: 0 1rem;" title="Copy to Clipboard">
@@ -275,18 +389,18 @@
       </div>
 
       <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem;">
-        <p style="font-size: 0.9rem; color: #a0aec0; margin-bottom: 1rem;">QR Code</p>
+        <p style="font-size: 0.9rem; color: #a0aec0; margin-bottom: 1rem;">Visual QR Code</p>
         <div class="qr-canvas-holder">
           <canvas id="qr-canvas" width="180" height="180"></canvas>
         </div>
         <button onclick="downloadQrCode()" class="btn-action outline" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
-          <i class="fa-solid fa-download"></i> Download QR Code
+          <i class="fa-solid fa-download"></i> Download QR Image
         </button>
       </div>
     </div>
   </div>
 
-  <!-- QR code builder library (easy, zero dependencies, client-side) -->
+  <!-- Client-side Qrious QR library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <!-- Main Dashboard Script logic -->
   <script src="/js/dashboard.js"></script>

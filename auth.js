@@ -21,14 +21,17 @@ function requireAdmin(req, res, next) {
 
 // Register Route
 router.post('/register', async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, first_name, last_name, mobile_number } = req.body;
 
-  if (!username || !email || !password) {
+  if (!username || !email || !password || !first_name || !last_name || !mobile_number) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
   const cleanUsername = username.toLowerCase().trim();
   const cleanEmail = email.toLowerCase().trim();
+  const cleanFirstName = first_name.trim();
+  const cleanLastName = last_name.trim();
+  const cleanMobile = mobile_number.trim();
 
   // Username validation (alphanumeric and underscores, length 3-20)
   const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
@@ -47,14 +50,18 @@ router.post('/register', async (req, res) => {
   }
 
   try {
-    // Check if user already exists
+    // Check if username or email already exists
     const existingUser = await db.query(
-      'SELECT id FROM users WHERE username = ? OR email = ?',
+      'SELECT username, email FROM users WHERE username = ? OR email = ?',
       [cleanUsername, cleanEmail]
     );
 
     if (existingUser.length > 0) {
-      return res.status(400).json({ error: 'Username or email is already registered.' });
+      if (existingUser[0].username.toLowerCase() === cleanUsername) {
+        return res.status(400).json({ error: 'Username is already taken.' });
+      } else {
+        return res.status(400).json({ error: 'Email is already in use.' });
+      }
     }
 
     // Hash password
@@ -66,16 +73,17 @@ router.post('/register', async (req, res) => {
     const role = usersCount[0].count === 0 ? 'admin' : 'user';
 
     const result = await db.query(
-      'INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)',
-      [cleanUsername, cleanEmail, passwordHash, role]
+      'INSERT INTO users (username, email, password_hash, role, first_name, last_name, mobile_number) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [cleanUsername, cleanEmail, passwordHash, role, cleanFirstName, cleanLastName, cleanMobile]
     );
 
     const userId = result.insertId;
 
-    // Create empty profile
+    // Create profile automatically with Full Name (First + Last)
+    const displayName = `${cleanFirstName} ${cleanLastName}`;
     await db.query(
       'INSERT INTO profiles (user_id, name, bio, avatar_url, theme_id, social_links) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, username.trim(), 'Welcome to my links page!', '', 'glass-dark', '{}']
+      [userId, displayName, 'Welcome to my links page!', '', 'midnight-premium', '{}']
     );
 
     // Set Session properties

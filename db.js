@@ -96,7 +96,74 @@ async function createTables() {
   await pool.query(linksTable);
   await pool.query(analyticsTable);
 
+  // Execute try-catch schema upgrades safely
+  await runMigrations();
+
   console.log('Database tables verified/created successfully.');
+}
+
+async function runMigrations() {
+  console.log('Checking database migrations...');
+  
+  // 1. Links: type block type column
+  try {
+    await pool.query("ALTER TABLE links ADD COLUMN type VARCHAR(30) DEFAULT 'link'");
+    console.log('-> Migrated links: added type column');
+  } catch (e) {
+    // Ignore duplicate column errors
+  }
+
+  // 2. Profiles: font family
+  try {
+    await pool.query("ALTER TABLE profiles ADD COLUMN font_family VARCHAR(50) DEFAULT 'Outfit'");
+    console.log('-> Migrated profiles: added font_family column');
+  } catch (e) {}
+
+  // 3. Profiles: bg type
+  try {
+    await pool.query("ALTER TABLE profiles ADD COLUMN bg_type VARCHAR(20) DEFAULT 'preset'");
+    console.log('-> Migrated profiles: added bg_type column');
+  } catch (e) {}
+
+  // 4. Profiles: custom bg string
+  try {
+    await pool.query("ALTER TABLE profiles ADD COLUMN custom_bg VARCHAR(255) DEFAULT ''");
+    console.log('-> Migrated profiles: added custom_bg column');
+  } catch (e) {}
+
+  // 5. Profiles: button corners shape
+  try {
+    await pool.query("ALTER TABLE profiles ADD COLUMN btn_shape VARCHAR(30) DEFAULT 'rounded'");
+    console.log('-> Migrated profiles: added btn_shape column');
+  } catch (e) {}
+
+  // 6. Profiles: button styling style
+  try {
+    await pool.query("ALTER TABLE profiles ADD COLUMN btn_style VARCHAR(30) DEFAULT 'solid'");
+    console.log('-> Migrated profiles: added btn_style column');
+  } catch (e) {}
+
+  // 7. Profiles: layout mode choice
+  try {
+    await pool.query("ALTER TABLE profiles ADD COLUMN layout_mode VARCHAR(30) DEFAULT 'mobile-card'");
+    console.log('-> Migrated profiles: added layout_mode column');
+  } catch (e) {}
+
+  // 8. Users: first_name, last_name, mobile_number attributes
+  try {
+    await pool.query("ALTER TABLE users ADD COLUMN first_name VARCHAR(100) DEFAULT ''");
+    console.log('-> Migrated users: added first_name column');
+  } catch (e) {}
+
+  try {
+    await pool.query("ALTER TABLE users ADD COLUMN last_name VARCHAR(100) DEFAULT ''");
+    console.log('-> Migrated users: added last_name column');
+  } catch (e) {}
+
+  try {
+    await pool.query("ALTER TABLE users ADD COLUMN mobile_number VARCHAR(50) DEFAULT ''");
+    console.log('-> Migrated users: added mobile_number column');
+  } catch (e) {}
 }
 
 // Initialization Promise

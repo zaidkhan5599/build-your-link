@@ -1,3 +1,15 @@
+// Helper for backward compatibility theme mapping
+function mapThemeId(themeId) {
+  const map = {
+    'glass-dark': 'midnight-premium',
+    'midnight-aurora': 'midnight-premium',
+    'sunset-glow': 'corporate-navy',
+    'forest-breeze': 'sage-portfolio',
+    'neo-brutalism': 'minimalist-ivory'
+  };
+  return map[themeId] || themeId || 'midnight-premium';
+}
+
 // Dashboard Local State
 let state = {
   username: '',
@@ -7,9 +19,14 @@ let state = {
     bio: '',
     avatar_url: '',
     theme_id: 'glass-dark',
-    social_links: {}
+    social_links: {},
+    font_family: 'Outfit',
+    bg_type: 'preset',
+    custom_bg: '',
+    btn_shape: 'rounded',
+    btn_style: 'solid'
   },
-  links: [] // array of links: { id, title, url, sort_order, is_active }
+  links: [] // array of links: { id, title, url, sort_order, is_active, type }
 };
 
 // QR Code instance
@@ -32,9 +49,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     updatePreview();
   });
 
-  // 4. Bind forms
+  // 4. Bind forms and custom styling events
   bindFormEvents();
+  bindStyleCustomizerEvents();
+
+  // Set default view layout
+  setView('editor');
+  
+  // Set default block inputs visibility
+  toggleBlockTypeInputs();
 });
+
+// Switch editor workspace views (Editor vs Analytics grids)
+function setView(viewName) {
+  const wrapper = document.getElementById('dashboard-main-wrapper');
+  const contentSec = document.getElementById('editor-content-sec');
+  const styleSec = document.getElementById('editor-style-sec');
+  const analyticsSec = document.getElementById('analytics-sec');
+  
+  // Update nav buttons selection
+  document.querySelectorAll('.nav-toggle-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`nav-btn-${viewName}`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  if (viewName === 'editor') {
+    wrapper.style.gridTemplateColumns = '1.2fr 1fr 340px';
+    contentSec.style.display = 'flex';
+    styleSec.style.display = 'flex';
+    analyticsSec.classList.remove('active-view');
+  } else {
+    // Analytics Full Width
+    wrapper.style.gridTemplateColumns = '2.2fr 340px';
+    contentSec.style.display = 'none';
+    styleSec.style.display = 'none';
+    analyticsSec.classList.add('active-view');
+    
+    // Fetch stats
+    fetchAnalytics();
+  }
+}
 
 // Verify Auth & Bootstrap User info
 async function checkAuthStatus() {
@@ -43,7 +96,6 @@ async function checkAuthStatus() {
     const data = await res.json();
     
     if (!data.loggedIn) {
-      // Not logged in, send to login
       window.location.href = '/login.html';
       return;
     }
@@ -51,37 +103,15 @@ async function checkAuthStatus() {
     state.username = data.user.username;
     state.role = data.user.role;
 
-    // Hydrate Header usernames
     document.getElementById('header-username').textContent = `@${state.username}`;
     document.getElementById('view-my-page-btn').href = `/${state.username}`;
     
-    // Toggle Admin navigation item
     if (state.role === 'admin') {
       document.getElementById('admin-nav-item').style.display = 'block';
     }
   } catch (err) {
     console.error('Auth verification failed:', err);
     window.location.href = '/login.html';
-  }
-}
-
-// TAB Switcher
-function switchTab(tabId) {
-  // Hide all contents and deactivate tabs
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-  // Activate chosen
-  document.getElementById(tabId).classList.add('active');
-  
-  // Activate tab button (finding by onclick text)
-  const buttons = Array.from(document.querySelectorAll('.tab-btn'));
-  const matchingBtn = buttons.find(b => b.getAttribute('onclick').includes(tabId));
-  if (matchingBtn) matchingBtn.classList.add('active');
-
-  // If entering analytics, reload statistics
-  if (tabId === 'tab-analytics') {
-    fetchAnalytics();
   }
 }
 
@@ -93,8 +123,9 @@ async function fetchProfile() {
     const profile = await res.json();
 
     state.profile = profile;
+    state.profile.username = state.username; 
 
-    // Fill TAB 2 inputs
+    // Fill inputs
     document.getElementById('profile-display-name').value = profile.name || '';
     document.getElementById('profile-bio').value = profile.bio || '';
     document.getElementById('profile-avatar-url').value = profile.avatar_url || '';
@@ -105,6 +136,31 @@ async function fetchProfile() {
     } else {
       avatarPreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || state.username)}&background=a855f7&color=fff`;
     }
+
+    // Set layout mode, font family, card corners shape, button border styles
+    document.getElementById('profile-layout-select').value = profile.layout_mode || 'mobile-card';
+    document.getElementById('profile-font-select').value = profile.font_family || 'Outfit';
+    document.getElementById('profile-shape-select').value = profile.btn_shape || 'rounded';
+    document.getElementById('profile-style-select').value = profile.btn_style || 'solid';
+
+    // Set background type selection
+    document.getElementById('bg-type-select').value = profile.bg_type || 'preset';
+
+    // Parse backgrounds if custom is set
+    if (profile.bg_type === 'color' && profile.custom_bg) {
+      document.getElementById('bg-solid-color').value = profile.custom_bg;
+      document.getElementById('bg-solid-hex').value = profile.custom_bg;
+    } else if (profile.bg_type === 'gradient' && profile.custom_bg) {
+      const hexes = profile.custom_bg.match(/#[0-9a-fA-F]{6}/g);
+      if (hexes && hexes.length >= 2) {
+        document.getElementById('bg-grad-start').value = hexes[0];
+        document.getElementById('bg-grad-start-hex').value = hexes[0];
+        document.getElementById('bg-grad-end').value = hexes[1];
+        document.getElementById('bg-grad-end-hex').value = hexes[1];
+      }
+    }
+    
+    handleBgTypeChange();
 
     // Fill socials
     const socials = profile.social_links || {};
@@ -119,10 +175,11 @@ async function fetchProfile() {
     document.getElementById('social-email').value = socials.email || '';
     document.getElementById('social-phone').value = socials.phone || '';
 
-    // Mark current theme selected in TAB 3 UI
+    // Mark current theme selected in UI
+    const activeThemeId = mapThemeId(profile.theme_id);
     document.querySelectorAll('.theme-card-option').forEach(card => {
       card.classList.remove('selected');
-      if (card.dataset.theme === profile.theme_id) {
+      if (card.dataset.theme === activeThemeId) {
         card.classList.add('selected');
       }
     });
@@ -146,15 +203,15 @@ async function fetchLinks() {
   }
 }
 
-// Render the links stack in the config panel
+// Render content blocks lists in the content editor (Column 1)
 function renderLinksList() {
   const container = document.getElementById('links-container');
   container.innerHTML = '';
 
   if (state.links.length === 0) {
     container.innerHTML = `
-      <p style="color: #718096; font-style: italic; text-align: center; padding: 2rem;">
-        No links added yet. Create your first link above!
+      <p style="color: #718096; font-style: italic; text-align: center; padding: 2.5rem;">
+        No active blocks yet. Select type and create your first block above!
       </p>`;
     return;
   }
@@ -164,32 +221,47 @@ function renderLinksList() {
     item.className = 'link-list-item';
     item.dataset.id = link.id;
 
-    // Up/Down reordering arrow buttons
     const upDisabled = index === 0 ? 'disabled style="opacity:0.2; cursor:default;"' : '';
     const downDisabled = index === state.links.length - 1 ? 'disabled style="opacity:0.2; cursor:default;"' : '';
 
+    // Form inputs depending on block type
+    let blockTypeBadge = '🔗 Button';
+    let urlInputHtml = `<input type="url" class="link-url-input" value="${link.url || ''}" onchange="updateLinkData(${link.id}, 'url', this.value)" placeholder="Destination URL">`;
+    let titlePlaceholder = 'Link Button Title';
+
+    if (link.type === 'text') {
+      blockTypeBadge = '✏️ Divider Text';
+      urlInputHtml = ''; // Divider blocks don't hold URLs
+      titlePlaceholder = 'Divider Heading Text';
+    } else if (link.type === 'youtube') {
+      blockTypeBadge = '🎥 YouTube Player';
+      titlePlaceholder = 'Video Heading (Optional)';
+      urlInputHtml = `<input type="url" class="link-url-input" value="${link.url || ''}" onchange="updateLinkData(${link.id}, 'url', this.value)" placeholder="YouTube Video URL (watch or short url)">`;
+    }
+
     item.innerHTML = `
-      <!-- Reorder Controls -->
-      <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+      <!-- Up/Down reordering arrow buttons -->
+      <div style="display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center;">
         <button onclick="moveLink(${index}, -1)" ${upDisabled} style="background:none; border:none; color:#a0aec0; cursor:pointer;" title="Move Up"><i class="fa-solid fa-caret-up"></i></button>
         <button onclick="moveLink(${index}, 1)" ${downDisabled} style="background:none; border:none; color:#a0aec0; cursor:pointer;" title="Move Down"><i class="fa-solid fa-caret-down"></i></button>
       </div>
 
       <!-- Details Inputs -->
-      <div class="link-details">
-        <input type="text" class="link-title-input" value="${link.title}" onchange="updateLinkData(${link.id}, 'title', this.value)" placeholder="Link Title">
-        <input type="url" class="link-url-input" value="${link.url}" onchange="updateLinkData(${link.id}, 'url', this.value)" placeholder="Destination URL">
+      <div class="link-details" style="flex:1;">
+        <div style="font-size:0.75rem; color:#718096; font-weight:700; margin-bottom:2px; display:flex; align-items:center; gap:4px;">
+          <span>${blockTypeBadge}</span>
+        </div>
+        <input type="text" class="link-title-input" value="${link.title}" onchange="updateLinkData(${link.id}, 'title', this.value)" placeholder="${titlePlaceholder}">
+        ${urlInputHtml}
       </div>
 
-      <!-- Action items -->
+      <!-- Action Items toggle switch & Delete -->
       <div class="link-actions">
-        <!-- Active Switch -->
         <label class="switch">
           <input type="checkbox" ${link.is_active ? 'checked' : ''} onchange="updateLinkData(${link.id}, 'is_active', this.checked)">
           <span class="slider"></span>
         </label>
-        <!-- Delete Button -->
-        <button class="btn-danger-icon" onclick="deleteLink(${link.id})" title="Delete Link">
+        <button class="btn-danger-icon" onclick="deleteLink(${link.id})" title="Delete Block">
           <i class="fa-solid fa-trash-can"></i>
         </button>
       </div>
@@ -199,21 +271,18 @@ function renderLinksList() {
   });
 }
 
-// Up/Down reordering handler
+// Reordering elements inside links list arrays
 async function moveLink(index, direction) {
   const targetIndex = index + direction;
   if (targetIndex < 0 || targetIndex >= state.links.length) return;
 
-  // Swap elements in memory
   const temp = state.links[index];
   state.links[index] = state.links[targetIndex];
   state.links[targetIndex] = temp;
 
-  // Rerender list immediately (responsive UI)
   renderLinksList();
   updatePreview();
 
-  // Send reordered IDs to API
   const orderedIds = state.links.map(l => l.id);
   try {
     const res = await fetch('/api/links/reorder', {
@@ -227,15 +296,12 @@ async function moveLink(index, direction) {
   }
 }
 
-// In-line update link properties (title, url, active toggle)
+// Inline content updates
 async function updateLinkData(linkId, field, value) {
   const link = state.links.find(l => l.id === linkId);
   if (!link) return;
 
-  // Update memory
   link[field] = value;
-
-  // Update preview instantly
   updatePreview();
 
   try {
@@ -248,52 +314,95 @@ async function updateLinkData(linkId, field, value) {
         is_active: link.is_active
       })
     });
-    if (!res.ok) throw new Error('Failed to update link details on server.');
+    if (!res.ok) throw new Error('Failed to save edit.');
   } catch (err) {
     console.error(err);
   }
 }
 
-// Delete Link
+// Delete Block
 async function deleteLink(linkId) {
-  if (!confirm('Are you sure you want to delete this link?')) return;
+  if (!confirm('Are you sure you want to delete this block?')) return;
 
-  // Update memory
   state.links = state.links.filter(l => l.id !== linkId);
-  
-  // Render and update preview
   renderLinksList();
   updatePreview();
 
   try {
     const res = await fetch(`/api/links/${linkId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Delete failed on server.');
+    if (!res.ok) throw new Error('Delete failed.');
   } catch (err) {
     console.error(err);
   }
 }
 
-// Sync edits to iframe preview viewport
+// Sync live state variables to preview mockup page
 function updatePreview() {
   const iframe = document.getElementById('phone-viewport-iframe');
   if (iframe && iframe.contentWindow) {
-    // Send message to hydrate iframe profile page in real time
     iframe.contentWindow.postMessage({
       type: 'preview-update',
       payload: {
         profile: state.profile,
-        // Send only active links to live preview
         links: state.links.filter(l => l.is_active)
       }
     }, '*');
   }
 }
 
-// Bind Form submits
+// Hard reload preview frame if needed
+function reloadPreview() {
+  const iframe = document.getElementById('phone-viewport-iframe');
+  if (iframe) {
+    iframe.src = `/${state.username}`;
+  }
+}
+
+// Toggle block inputs based on type
+function toggleBlockTypeInputs() {
+  const type = document.getElementById('block-type-select').value;
+  const titleInput = document.getElementById('new-link-title');
+  const urlInput = document.getElementById('new-link-url');
+  const urlGroup = document.getElementById('block-url-group');
+
+  if (type === 'text') {
+    titleInput.placeholder = 'Divider Heading Text (e.g. ✏️ My Projects)';
+    urlGroup.style.display = 'none';
+    urlInput.required = false;
+  } else if (type === 'youtube') {
+    titleInput.placeholder = 'Video Block Title (Optional)';
+    urlInput.placeholder = 'YouTube URL (e.g. https://www.youtube.com/watch?v=...)';
+    urlGroup.style.display = 'block';
+    urlInput.required = true;
+  } else if (type === 'instagram') {
+    titleInput.placeholder = 'Instagram Button Title (e.g. Follow my Instagram)';
+    urlInput.placeholder = 'Instagram Profile URL (e.g. https://instagram.com/username)';
+    urlGroup.style.display = 'block';
+    urlInput.required = true;
+  } else if (type === 'facebook') {
+    titleInput.placeholder = 'Facebook Button Title (e.g. Like our Facebook Page)';
+    urlInput.placeholder = 'Facebook URL (e.g. https://facebook.com/page)';
+    urlGroup.style.display = 'block';
+    urlInput.required = true;
+  } else if (type === 'linkedin') {
+    titleInput.placeholder = 'LinkedIn Button Title (e.g. Connect on LinkedIn)';
+    urlInput.placeholder = 'LinkedIn URL (e.g. https://linkedin.com/in/username)';
+    urlGroup.style.display = 'block';
+    urlInput.required = true;
+  } else {
+    titleInput.placeholder = 'Button Title (e.g. My Website)';
+    urlInput.placeholder = 'Destination URL (e.g. https://domain.com)';
+    urlGroup.style.display = 'block';
+    urlInput.required = true;
+  }
+}
+
+// Bind Form actions
 function bindFormEvents() {
-  // 1. Add link form
+  // 1. Add Block Submit
   document.getElementById('add-link-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const type = document.getElementById('block-type-select').value;
     const titleInput = document.getElementById('new-link-title');
     const urlInput = document.getElementById('new-link-url');
 
@@ -301,18 +410,20 @@ function bindFormEvents() {
       const response = await fetch('/api/links', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: titleInput.value, url: urlInput.value })
+        body: JSON.stringify({ 
+          title: titleInput.value, 
+          url: type === 'text' ? '' : urlInput.value, 
+          type: type 
+        })
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to add link');
+      if (!response.ok) throw new Error(data.error || 'Failed to add block');
 
-      // Append to memory and update UI
       state.links.push(data.link);
       renderLinksList();
       updatePreview();
 
-      // Clear input fields
       titleInput.value = '';
       urlInput.value = '';
     } catch (err) {
@@ -320,7 +431,7 @@ function bindFormEvents() {
     }
   });
 
-  // 2. Profile Details Form
+  // 2. Edit Profile Info
   document.getElementById('profile-details-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const displayName = document.getElementById('profile-display-name').value;
@@ -331,7 +442,6 @@ function bindFormEvents() {
     state.profile.bio = bio;
     state.profile.avatar_url = avatarUrl;
 
-    // Update avatar preview image
     const avatarPreview = document.getElementById('profile-avatar-preview');
     if (avatarUrl) {
       avatarPreview.src = avatarUrl;
@@ -340,10 +450,10 @@ function bindFormEvents() {
     }
 
     updatePreview();
-    await saveProfile();
+    await saveProfile(true);
   });
 
-  // 3. Socials Connector Form
+  // 3. Edit Social connectors
   document.getElementById('social-links-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -362,10 +472,10 @@ function bindFormEvents() {
 
     state.profile.social_links = socials;
     updatePreview();
-    await saveProfile();
+    await saveProfile(true);
   });
 
-  // Listen to input changes in textboxes for instant live-preview sync (as typing happens)
+  // Bind key inputs for instant preview syncing (as they type)
   document.getElementById('profile-display-name').addEventListener('input', (e) => {
     state.profile.name = e.target.value;
     updatePreview();
@@ -380,8 +490,36 @@ function bindFormEvents() {
   });
 }
 
-// Save profile state to backend
-async function saveProfile() {
+// Bind Styling adjustments & background pickers
+function bindStyleCustomizerEvents() {
+  // Bind hex changes to color pickers
+  document.getElementById('bg-solid-hex').addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+      document.getElementById('bg-solid-color').value = val;
+      syncCustomBackground();
+    }
+  });
+
+  document.getElementById('bg-grad-start-hex').addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+      document.getElementById('bg-grad-start').value = val;
+      syncCustomBackground();
+    }
+  });
+
+  document.getElementById('bg-grad-end-hex').addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+      document.getElementById('bg-grad-end').value = val;
+      syncCustomBackground();
+    }
+  });
+}
+
+// Save profile variables to server database
+async function saveProfile(showAlert = false) {
   try {
     const res = await fetch('/api/profile', {
       method: 'POST',
@@ -390,39 +528,104 @@ async function saveProfile() {
         name: state.profile.name,
         bio: state.profile.bio,
         avatar_url: state.profile.avatar_url,
-        social_links: state.profile.social_links
+        social_links: state.profile.social_links,
+        font_family: state.profile.font_family,
+        bg_type: state.profile.bg_type,
+        custom_bg: state.profile.custom_bg,
+        btn_shape: state.profile.btn_shape,
+        btn_style: state.profile.btn_style,
+        layout_mode: state.profile.layout_mode
       })
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to save profile');
-    alert('Profile configurations updated successfully!');
+    if (!res.ok) throw new Error(data.error || 'Failed to save configuration');
+    if (showAlert) alert('Profile updated successfully!');
   } catch (err) {
-    alert(err.message);
+    console.error(err);
+    if (showAlert) alert(err.message);
   }
 }
 
-// Select design theme
-async function selectTheme(themeId) {
+// Debounced silent saving helper
+let silentSaveTimeout = null;
+function saveProfileSilently() {
+  clearTimeout(silentSaveTimeout);
+  silentSaveTimeout = setTimeout(() => {
+    saveProfile(false);
+  }, 800);
+}
+
+// Select design theme preset
+function selectTheme(themeId) {
   state.profile.theme_id = themeId;
   
-  // Highlight UI chosen
   document.querySelectorAll('.theme-card-option').forEach(card => {
     card.classList.remove('selected');
     if (card.dataset.theme === themeId) card.classList.add('selected');
   });
 
-  updatePreview();
+  // Re-enable preset background
+  state.profile.bg_type = 'preset';
+  document.getElementById('bg-type-select').value = 'preset';
+  handleBgTypeChange();
 
-  try {
-    await fetch('/api/theme', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme_id: themeId })
-    });
-  } catch (err) {
-    console.error('Failed to save theme choice:', err);
+  updatePreview();
+  saveProfileSilently();
+}
+
+// Background Type changer toggles inputs
+function handleBgTypeChange() {
+  const bgType = document.getElementById('bg-type-select').value;
+  state.profile.bg_type = bgType;
+
+  const solidGroup = document.getElementById('bg-color-picker-group');
+  const gradGroup = document.getElementById('bg-gradient-picker-group');
+
+  if (bgType === 'color') {
+    solidGroup.style.display = 'block';
+    gradGroup.style.display = 'none';
+  } else if (bgType === 'gradient') {
+    solidGroup.style.display = 'none';
+    gradGroup.style.display = 'flex';
+  } else {
+    solidGroup.style.display = 'none';
+    gradGroup.style.display = 'none';
   }
+
+  syncCustomBackground();
+}
+
+// Create linear gradients or solid colors dynamically
+function syncCustomBackground() {
+  const bgType = state.profile.bg_type;
+  if (bgType === 'color') {
+    const val = document.getElementById('bg-solid-color').value;
+    document.getElementById('bg-solid-hex').value = val;
+    state.profile.custom_bg = val;
+  } else if (bgType === 'gradient') {
+    const start = document.getElementById('bg-grad-start').value;
+    const end = document.getElementById('bg-grad-end').value;
+    document.getElementById('bg-grad-start-hex').value = start;
+    document.getElementById('bg-grad-end-hex').value = end;
+    state.profile.custom_bg = `linear-gradient(135deg, ${start} 0%, ${end} 100%)`;
+  } else {
+    state.profile.custom_bg = '';
+  }
+
+  updatePreview();
+  saveProfileSilently();
+}
+
+// Bind other custom shapes/fonts
+function syncCustomStyles() {
+  state.profile.layout_mode = document.getElementById('profile-layout-select').value;
+  state.profile.font_family = document.getElementById('profile-font-select').value;
+  state.profile.btn_shape = document.getElementById('profile-shape-select').value;
+  state.profile.btn_style = document.getElementById('profile-style-select').value;
+
+  updatePreview();
+  saveProfileSilently();
 }
 
 // ==========================================
@@ -434,31 +637,30 @@ async function fetchAnalytics() {
     if (!res.ok) throw new Error('Could not fetch analytics.');
     const data = await res.json();
 
-    // 1. Total boxes
     document.getElementById('analytics-views').textContent = data.total_views;
     document.getElementById('analytics-clicks').textContent = data.total_clicks;
 
-    // 2. Links clicks breakdown table
     const tableBody = document.querySelector('#analytics-links-table tbody');
     tableBody.innerHTML = '';
     
     if (data.links && data.links.length > 0) {
       data.links.forEach(link => {
         const tr = document.createElement('tr');
+        // Filter subheadings/dividers showing click data
+        let blockDetails = `<strong>${link.title}</strong>`;
+        if (link.url) blockDetails += `<div style="font-size:0.75rem; color:#718096; word-break:break-all;">${link.url}</div>`;
         tr.innerHTML = `
           <td style="padding: 0.75rem 0.5rem; color:#fff;">
-            <strong>${link.title}</strong>
-            <div style="font-size:0.8rem; color:#718096; word-break:break-all;">${link.url}</div>
+            ${blockDetails}
           </td>
           <td style="padding: 0.75rem 0.5rem; text-align: right; color:#a855f7; font-weight:700;">${link.clicks}</td>
         `;
         tableBody.appendChild(tr);
       });
     } else {
-      tableBody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding:1.5rem; color:#718096;">No click events logged.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding:1.5rem; color:#718096;">No clicks logged.</td></tr>';
     }
 
-    // 3. Referrers list
     const referrerList = document.getElementById('analytics-referrers-list');
     referrerList.innerHTML = '';
     
@@ -467,9 +669,12 @@ async function fetchAnalytics() {
         const li = document.createElement('li');
         li.style.display = 'flex';
         li.style.justify = 'space-between';
+        li.style.alignItems = 'center';
+        li.style.gap = '1rem';
+        li.style.marginBottom = '0.5rem';
         li.innerHTML = `
-          <span style="color:#e2e8f0;">${ref.referrer || 'Direct Link / Bookmark'}</span>
-          <span style="color:#06b6d4; font-weight:700;">${ref.count} views</span>
+          <span style="color:#e2e8f0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; flex: 1; max-width: 75%;" title="${ref.referrer || 'Direct Link / Bookmark'}">${ref.referrer || 'Direct Link / Bookmark'}</span>
+          <span style="color:#06b6d4; font-weight:700; flex-shrink: 0;">${ref.count} views</span>
         `;
         referrerList.appendChild(li);
       });
@@ -477,20 +682,39 @@ async function fetchAnalytics() {
       referrerList.innerHTML = '<li style="color:#718096; font-style:italic;">No referral data recorded.</li>';
     }
 
-    // 4. Render SVG Chart
-    drawAnalyticsChart(data.daily);
+    // Graph pre-population (last 7 days)
+    const dailyMap = {};
+    if (data.daily) {
+      data.daily.forEach(d => {
+        dailyMap[d.event_date] = { views: d.views, clicks: d.clicks };
+      });
+    }
+
+    const fullDailyStats = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(today.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const stats = dailyMap[dateStr] || { views: 0, clicks: 0 };
+      fullDailyStats.push({
+        event_date: dateStr,
+        views: stats.views,
+        clicks: stats.clicks
+      });
+    }
+
+    drawAnalyticsChart(fullDailyStats);
 
   } catch (err) {
     console.error(err);
   }
 }
 
-// Hand-drawn responsive SVG line chart
 function drawAnalyticsChart(dailyData) {
   const svg = document.getElementById('analytics-svg');
-  svg.innerHTML = ''; // reset
+  svg.innerHTML = '';
 
-  // If no data
   if (!dailyData || dailyData.length === 0) {
     svg.innerHTML = `
       <text x="250" y="100" text-anchor="middle" fill="#718096" font-size="14" font-style="italic">
@@ -499,7 +723,6 @@ function drawAnalyticsChart(dailyData) {
     return;
   }
 
-  // Define chart parameters
   const width = 500;
   const height = 200;
   const paddingLeft = 40;
@@ -510,24 +733,19 @@ function drawAnalyticsChart(dailyData) {
   const plotWidth = width - paddingLeft - paddingRight;
   const plotHeight = height - paddingTop - paddingBottom;
 
-  // Find max value to scale the Y-axis (views or clicks)
-  let maxVal = 5; // minimum axis limit
+  let maxVal = 5;
   dailyData.forEach(day => {
     if (day.views > maxVal) maxVal = day.views;
     if (day.clicks > maxVal) maxVal = day.clicks;
   });
   
-  // Add 20% breathing room to Y-axis limit
   maxVal = Math.ceil(maxVal * 1.2);
-
   const numPoints = dailyData.length;
   
-  // Draw Background Gridlines (4 levels)
   for (let i = 0; i <= 4; i++) {
     const gridY = paddingTop + plotHeight - (plotHeight * (i / 4));
     const valY = Math.round(maxVal * (i / 4));
     
-    // Gridline path
     const gridLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     gridLine.setAttribute('x1', paddingLeft);
     gridLine.setAttribute('y1', gridY);
@@ -537,7 +755,6 @@ function drawAnalyticsChart(dailyData) {
     gridLine.setAttribute('stroke-dasharray', '4 4');
     svg.appendChild(gridLine);
 
-    // Y Axis Label
     const yLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     yLabel.setAttribute('x', paddingLeft - 8);
     yLabel.setAttribute('y', gridY + 4);
@@ -549,28 +766,22 @@ function drawAnalyticsChart(dailyData) {
     svg.appendChild(yLabel);
   }
 
-  // Calculate coordinates
   const viewsPoints = [];
   const clicksPoints = [];
   const dates = [];
 
   dailyData.forEach((day, index) => {
-    // Distribute along X-axis
     const x = paddingLeft + (plotWidth * (index / (numPoints - 1 || 1)));
-    
-    // Calculate scaled Y-coordinates
     const yViews = paddingTop + plotHeight - (plotHeight * (day.views / maxVal));
     const yClicks = paddingTop + plotHeight - (plotHeight * (day.clicks / maxVal));
 
     viewsPoints.push({ x, y: yViews, count: day.views });
     clicksPoints.push({ x, y: yClicks, count: day.clicks });
     
-    // Format date string from YYYY-MM-DD to MM/DD
     const dateParts = day.event_date.split('-');
     dates.push({ x, label: `${dateParts[1]}/${dateParts[2]}` });
   });
 
-  // Draw X Axis dates
   dates.forEach(d => {
     const xText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     xText.setAttribute('x', d.x);
@@ -582,18 +793,15 @@ function drawAnalyticsChart(dailyData) {
     svg.appendChild(xText);
   });
 
-  // Function to create line path string
   const makePathString = (points) => {
     if (points.length === 0) return '';
     let d = `M ${points[0].x} ${points[0].y}`;
     for (let i = 1; i < points.length; i++) {
-      // Linear connections
       d += ` L ${points[i].x} ${points[i].y}`;
     }
     return d;
   };
 
-  // 1. Draw views path (Cyan Line)
   const viewsPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   viewsPath.setAttribute('d', makePathString(viewsPoints));
   viewsPath.setAttribute('fill', 'none');
@@ -602,7 +810,6 @@ function drawAnalyticsChart(dailyData) {
   viewsPath.setAttribute('stroke-linecap', 'round');
   svg.appendChild(viewsPath);
 
-  // 2. Draw clicks path (Purple Line)
   const clicksPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   clicksPath.setAttribute('d', makePathString(clicksPoints));
   clicksPath.setAttribute('fill', 'none');
@@ -611,7 +818,6 @@ function drawAnalyticsChart(dailyData) {
   clicksPath.setAttribute('stroke-linecap', 'round');
   svg.appendChild(clicksPath);
 
-  // 3. Draw Dots on View points
   viewsPoints.forEach(p => {
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', p.x);
@@ -621,15 +827,12 @@ function drawAnalyticsChart(dailyData) {
     circle.setAttribute('stroke', '#06b6d4');
     circle.setAttribute('stroke-width', '1.5');
     
-    // Simple tooltip showing value
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     title.textContent = `${p.count} Views`;
     circle.appendChild(title);
-
     svg.appendChild(circle);
   });
 
-  // 4. Draw Dots on Click points
   clicksPoints.forEach(p => {
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', p.x);
@@ -642,7 +845,6 @@ function drawAnalyticsChart(dailyData) {
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     title.textContent = `${p.count} Clicks`;
     circle.appendChild(title);
-
     svg.appendChild(circle);
   });
 }
@@ -653,14 +855,11 @@ function drawAnalyticsChart(dailyData) {
 function openShareModal() {
   const modal = document.getElementById('share-modal');
   const shareInput = document.getElementById('share-link-input');
-  
-  // Build public address path
   const shareUrl = `${window.location.protocol}//${window.location.host}/${state.username}`;
+  
   shareInput.value = shareUrl;
-
   modal.classList.add('active');
 
-  // Load and draw QR code
   if (typeof QRious !== 'undefined') {
     qrCodeGenerator = new QRious({
       element: document.getElementById('qr-canvas'),
@@ -668,7 +867,7 @@ function openShareModal() {
       size: 180,
       background: '#ffffff',
       foreground: '#000000',
-      level: 'H' // High correction
+      level: 'H'
     });
   }
 }
@@ -680,10 +879,10 @@ function closeShareModal() {
 function copyShareLink() {
   const shareInput = document.getElementById('share-link-input');
   shareInput.select();
-  shareInput.setSelectionRange(0, 99999); // Mobile compatibility
+  shareInput.setSelectionRange(0, 99999);
 
   navigator.clipboard.writeText(shareInput.value)
-    .then(() => alert('Link copied to clipboard!'))
+    .then(() => alert('Link copied!'))
     .catch(() => alert('Failed to copy. Please manually copy the link.'));
 }
 
@@ -714,3 +913,4 @@ async function handleLogout() {
     console.error('Logout error:', err);
   }
 }
+window.toggleBlockTypeInputs = toggleBlockTypeInputs;

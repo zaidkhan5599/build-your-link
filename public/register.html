@@ -20,6 +20,22 @@
     <div id="error-box" class="error-message"></div>
 
     <form id="register-form">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div class="form-group">
+          <label for="first_name">First Name</label>
+          <input type="text" id="first_name" placeholder="John" required>
+        </div>
+        <div class="form-group">
+          <label for="last_name">Last Name</label>
+          <input type="text" id="last_name" placeholder="Doe" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="mobile_number">Mobile Number</label>
+        <input type="tel" id="mobile_number" placeholder="e.g. +1 555-0199" required>
+      </div>
+
       <div class="form-group">
         <label for="username">Username (custom page URL)</label>
         <input type="text" id="username" placeholder="e.g. johndoe" required autocomplete="username" spellcheck="false">
@@ -81,6 +97,9 @@
       const username = usernameInput.value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
+      const first_name = document.getElementById('first_name').value;
+      const last_name = document.getElementById('last_name').value;
+      const mobile_number = document.getElementById('mobile_number').value;
       const errorBox = document.getElementById('error-box');
       const submitBtn = document.getElementById('submit-btn');
 
@@ -93,7 +112,7 @@
         const response = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, email, password })
+          body: JSON.stringify({ username, email, password, first_name, last_name, mobile_number })
         });
 
         const data = await response.json();

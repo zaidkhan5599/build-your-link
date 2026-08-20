@@ -21,7 +21,8 @@ router.get('/public/profile/:username', async (req, res) => {
   try {
     // 1. Fetch user & profile
     const users = await db.query(
-      `SELECT u.id, u.username, p.name, p.bio, p.avatar_url, p.theme_id, p.social_links 
+      `SELECT u.id, u.username, p.name, p.bio, p.avatar_url, p.theme_id, p.social_links,
+              p.font_family, p.bg_type, p.custom_bg, p.btn_shape, p.btn_style, p.layout_mode 
        FROM users u
        JOIN profiles p ON u.id = p.user_id
        WHERE u.username = ?`,
@@ -42,7 +43,7 @@ router.get('/public/profile/:username', async (req, res) => {
 
     // 2. Fetch active links sorted
     const links = await db.query(
-      'SELECT id, title, url, sort_order FROM links WHERE user_id = ? AND is_active = 1 ORDER BY sort_order ASC, id DESC',
+      'SELECT id, title, url, sort_order, type FROM links WHERE user_id = ? AND is_active = 1 ORDER BY sort_order ASC, id DESC',
       [profile.id]
     );
 
@@ -97,7 +98,7 @@ router.post('/public/click/:linkId', async (req, res) => {
 router.get('/profile', requireAuth, async (req, res) => {
   try {
     const profiles = await db.query(
-      'SELECT name, bio, avatar_url, theme_id, social_links FROM profiles WHERE user_id = ?',
+      'SELECT name, bio, avatar_url, theme_id, social_links, font_family, bg_type, custom_bg, btn_shape, btn_style, layout_mode FROM profiles WHERE user_id = ?',
       [req.session.userId]
     );
 
@@ -121,16 +122,21 @@ router.get('/profile', requireAuth, async (req, res) => {
 
 // Update profile info
 router.post('/profile', requireAuth, async (req, res) => {
-  const { name, bio, avatar_url, social_links } = req.body;
+  const { name, bio, avatar_url, social_links, font_family, bg_type, custom_bg, btn_shape, btn_style, layout_mode } = req.body;
 
   try {
     const socialLinksStr = typeof social_links === 'object' ? JSON.stringify(social_links) : JSON.stringify({});
 
     await db.query(
       `UPDATE profiles 
-       SET name = ?, bio = ?, avatar_url = ?, social_links = ? 
+       SET name = ?, bio = ?, avatar_url = ?, social_links = ?,
+           font_family = ?, bg_type = ?, custom_bg = ?, btn_shape = ?, btn_style = ?, layout_mode = ? 
        WHERE user_id = ?`,
-      [name || '', bio || '', avatar_url || '', socialLinksStr, req.session.userId]
+      [
+        name || '', bio || '', avatar_url || '', socialLinksStr,
+        font_family || 'Outfit', bg_type || 'preset', custom_bg || '',
+        btn_shape || 'rounded', btn_style || 'solid', layout_mode || 'mobile-card', req.session.userId
+      ]
     );
 
     return res.json({ success: true, message: 'Profile updated successfully.' });
@@ -161,7 +167,7 @@ router.post('/theme', requireAuth, async (req, res) => {
 router.get('/links', requireAuth, async (req, res) => {
   try {
     const links = await db.query(
-      'SELECT id, title, url, sort_order, is_active FROM links WHERE user_id = ? ORDER BY sort_order ASC, id DESC',
+      'SELECT id, title, url, sort_order, is_active, type FROM links WHERE user_id = ? ORDER BY sort_order ASC, id DESC',
       [req.session.userId]
     );
     return res.json(links);
@@ -173,10 +179,11 @@ router.get('/links', requireAuth, async (req, res) => {
 
 // Create new link
 router.post('/links', requireAuth, async (req, res) => {
-  const { title, url } = req.body;
+  const { title, url, type } = req.body;
+  const blockType = type || 'link';
 
-  if (!title || !url) {
-    return res.status(400).json({ error: 'Title and URL are required.' });
+  if (!title || (!url && blockType !== 'text')) {
+    return res.status(400).json({ error: 'Title/Content is required, and URL is required for links/embeds.' });
   }
 
   try {
@@ -188,13 +195,13 @@ router.post('/links', requireAuth, async (req, res) => {
     const nextOrder = (maxOrderResult[0].max_order || 0) + 1;
 
     const result = await db.query(
-      'INSERT INTO links (user_id, title, url, sort_order, is_active) VALUES (?, ?, ?, ?, 1)',
-      [req.session.userId, title, url, nextOrder]
+      'INSERT INTO links (user_id, title, url, sort_order, is_active, type) VALUES (?, ?, ?, ?, 1, ?)',
+      [req.session.userId, title, url || '', nextOrder, blockType]
     );
 
     return res.status(201).json({
       success: true,
-      link: { id: result.insertId, title, url, sort_order: nextOrder, is_active: 1 }
+      link: { id: result.insertId, title, url: url || '', sort_order: nextOrder, is_active: 1, type: blockType }
     });
   } catch (error) {
     console.error('Create link error:', error);

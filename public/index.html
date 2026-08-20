@@ -4,106 +4,878 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Create a single link-in-bio webpage. Connect all your social media platforms, stores, portfolios, and contact links on a single shareable page.">
-  <title>Build Your Link - One Link to Connect Them All</title>
+  <title>Build Your Link - Your World. One Simple Link.</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Specific styles for the premium landing page */
+    .landing-header {
+      background: rgba(11, 15, 23, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 1.25rem 2rem;
+    }
+
+    .landing-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #fff 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .landing-logo i {
+      color: #6366f1;
+      -webkit-text-fill-color: initial;
+    }
+
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .landing-nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .landing-nav-links a {
+      color: #94a3b8;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .landing-nav-links a:hover {
+      color: #fff;
+    }
+
+    .landing-auth-btns {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .landing-btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .landing-btn.secondary {
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: transparent;
+    }
+
+    .landing-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .landing-btn.primary {
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .landing-btn.primary:hover {
+      background: #4338ca;
+      transform: translateY(-1px);
+    }
+
+    /* Hero elements */
+    .landing-hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+    }
+
+    .landing-hero h1 {
+      font-size: 4rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 1.5rem;
+      letter-spacing: -1.5px;
+    }
+
+    .landing-hero h1 span {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-claim-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+      max-width: 480px;
+      margin-bottom: 2rem;
+      align-items: center;
+    }
+
+    .hero-claim-box span {
+      font-weight: 500;
+      color: #64748b;
+      padding-left: 0.75rem;
+    }
+
+    .hero-claim-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 1rem;
+      flex: 1;
+      padding: 0.5rem 0;
+    }
+
+    .hero-claim-box button {
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      outline: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .hero-claim-box button:hover {
+      background: #4338ca;
+    }
+
+    .social-proof-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .avatar-circles {
+      display: flex;
+    }
+
+    .avatar-circles img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid #0b0f17;
+      margin-left: -8px;
+    }
+
+    .avatar-circles img:first-child {
+      margin-left: 0;
+    }
+
+    .proof-text {
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    .proof-text strong {
+      color: #e2e8f0;
+    }
+
+    .stars {
+      color: #f59e0b;
+      margin-right: 4px;
+    }
+
+    /* Target categories selector */
+    .mockup-header-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #94a3b8;
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: #4f46e5;
+      color: #fff;
+      border-color: #4f46e5;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    /* Landing Phone Mockup styling */
+    .landing-mockup-wrapper {
+      position: relative;
+      width: 320px;
+      height: 600px;
+      border: 8px solid #1e293b;
+      border-radius: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.1);
+      margin: 0 auto;
+      overflow: hidden;
+      background: #0f172a;
+    }
+
+    .landing-mockup-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 18px;
+      background: #1e293b;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      z-index: 10;
+    }
+
+    .mockup-inner {
+      width: 100%;
+      height: 100%;
+      padding: 2.5rem 1rem 1rem 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    /* Mockup internal components */
+    .mock-avatar-container {
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+
+    .mock-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent-color, #4f46e5);
+    }
+
+    .mock-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: #4f46e5;
+      color: #fff;
+      font-size: 0.65rem;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #0f172a;
+    }
+
+    .mock-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary, #fff);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mock-sub {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary, #94a3b8);
+      margin-bottom: 0.5rem;
+    }
+
+    .mock-bio {
+      font-size: 0.75rem;
+      color: var(--text-secondary, #94a3b8);
+      text-align: center;
+      line-height: 1.4;
+      margin-bottom: 1rem;
+    }
+
+    .mock-socials {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .mock-socials a {
+      color: var(--text-secondary, #94a3b8);
+      font-size: 0.9rem;
+      transition: transform 0.2s;
+    }
+
+    .mock-socials a:hover {
+      transform: translateY(-2px);
+      color: var(--text-primary, #fff);
+    }
+
+    .mock-links-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .mock-link {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: var(--btn-radius, 12px);
+      background: var(--btn-bg, rgba(255,255,255,0.05));
+      border: 1px solid var(--btn-border, rgba(255,255,255,0.1));
+      color: var(--btn-text, #fff);
+      font-weight: 600;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .mock-link:hover {
+      background: var(--btn-hover-bg, rgba(255,255,255,0.1));
+      transform: translateY(-1px);
+    }
+
+    .mock-link i.left-icon {
+      margin-right: 8px;
+      font-size: 0.9rem;
+    }
+
+    .mock-link i.right-arrow {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    .mock-contact {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary, #64748b);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Everything You Need Section */
+    .pitch-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 6rem 2rem;
+      background: #080b11;
+    }
+
+    .pitch-title {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .pitch-title h2 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .pitch-title p {
+      color: #64748b;
+      font-size: 1.05rem;
+    }
+
+    .pitch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .pitch-card {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 2rem 1.5rem;
+      border-radius: 16px;
+      transition: all 0.3s;
+    }
+
+    .pitch-card:hover {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .pitch-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6366f1;
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pitch-card h3 {
+      font-size: 1.15rem;
+      color: #fff;
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+    }
+
+    .pitch-card p {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    /* Custom styles for different mockup modes mapping the themes */
+    .mock-corporate-navy {
+      background: linear-gradient(135deg, #0b1329 0%, #080d1e 100%) !important;
+      --accent-color: #00b4d8;
+      --text-primary: #ffffff;
+      --text-secondary: #8d99ae;
+      --btn-bg: #1c2541;
+      --btn-border: rgba(255, 255, 255, 0.1);
+      --btn-hover-bg: #2a3454;
+      --btn-text: #ffffff;
+      --btn-radius: 8px;
+    }
+
+    .mock-warm-editorial {
+      background: #fcfaf2 !important;
+      font-family: 'Playfair Display', serif !important;
+      --accent-color: #d97706;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4b5563;
+      --btn-bg: #ffffff;
+      --btn-border: #1a1a1a;
+      --btn-hover-bg: #f9f6f0;
+      --btn-text: #1a1a1a;
+      --btn-radius: 4px;
+    }
+
+    .mock-warm-editorial .mock-link {
+      font-family: 'Playfair Display', serif !important;
+      border-width: 1px !important;
+    }
+
+    .mock-sage-portfolio {
+      background: #e2e8dd !important;
+      font-family: 'Outfit', sans-serif !important;
+      --accent-color: #6b705c;
+      --text-primary: #2d372c;
+      --text-secondary: #5c685b;
+      --btn-bg: #ffffff;
+      --btn-border: rgba(0, 0, 0, 0.05);
+      --btn-hover-bg: #f4f6f2;
+      --btn-text: #2d372c;
+      --btn-radius: 14px;
+    }
+
+    .mock-midnight-premium {
+      background: radial-gradient(circle at 50% 50%, #151a24 0%, #090b10 100%) !important;
+      font-family: 'Inter', sans-serif !important;
+      --accent-color: #a855f7;
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --btn-bg: rgba(255, 255, 255, 0.04);
+      --btn-border: rgba(255, 255, 255, 0.08);
+      --btn-hover-bg: rgba(255, 255, 255, 0.08);
+      --btn-text: #ffffff;
+      --btn-radius: 12px;
+    }
+
+    @media(max-width: 768px) {
+      .landing-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 3rem 1rem;
+        gap: 3rem;
+      }
+      .landing-hero h1 {
+        font-size: 2.75rem;
+      }
+      .hero-claim-box {
+        margin: 0 auto 2rem auto;
+      }
+      .social-proof-row {
+        justify-content: center;
+      }
+      .landing-nav-links {
+        display: none; /* Hide simple link array on mobile */
+      }
+    }
+  </style>
 </head>
-<body class="theme-glass-dark">
+<body class="theme-midnight-premium" style="position:relative; min-height:100vh;">
   
+  <div class="theme-midnight-premium-bg-blobs"></div>
+
   <!-- Header -->
-  <header>
-    <div class="nav-container">
-      <a href="/" class="logo">
-        ✨ <span>Build Your Link</span>
-      </a>
-      <ul class="nav-links" id="nav-links">
-        <li><a href="/login.html" class="nav-btn secondary">Log In</a></li>
-        <li><a href="/register.html" class="nav-btn primary">Sign Up Free</a></li>
-      </ul>
+  <header class="landing-header">
+    <div class="nav-container" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+      <div style="display:flex; align-items:center; gap:2.5rem;">
+        <a href="/" class="landing-logo">
+          <i class="fa-solid fa-link"></i> <span>Build Your Link</span>
+        </a>
+        <ul class="landing-nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="/login.html">Pricing</a></li>
+          <li><a href="/login.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="landing-auth-btns" id="nav-links">
+        <a href="/login.html" class="landing-btn secondary">Log In</a>
+        <a href="/register.html" class="landing-btn primary">Get Started</a>
+      </div>
     </div>
   </header>
 
   <!-- Hero Section -->
-  <main class="hero-section">
-    <div class="hero-content">
-      <h1>The Only Link <br>Your Bio Will <span>Ever Need</span></h1>
-      <p>
-        Create a gorgeous, mobile-responsive page to share your social media, stores, videos, music, and contact details in seconds. An all-in-one link-in-bio built for creators, businesses, and freelancers.
+  <main class="landing-hero">
+    
+    <div class="hero-text-block">
+      <div class="hero-badge">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> All Your Links, One Perfect Page.
+      </div>
+      <h1>Your World.<br>One <span>Simple Link.</span></h1>
+      <p class="hero-desc">
+        Build a beautiful, personal portfolio page that brings all your content and links together. Share once. Connect everywhere. Perfect for small businesses, creators, influencers, and students.
       </p>
       
       <!-- Claim Username input -->
-      <form class="claim-form" id="claim-form">
+      <form class="hero-claim-box" id="claim-form">
         <span>buildyourlink/</span>
         <input type="text" id="claim-username" placeholder="yourname" required autocomplete="off" spellcheck="false">
-        <button type="submit">Claim Page</button>
+        <button type="submit">Create Your Page <i class="fa-solid fa-arrow-right"></i></button>
       </form>
       
-      <p style="font-size: 0.85rem; color: #718096; margin-top: 0.75rem; margin-bottom: 0;">
-        🔥 No configuration needed. Get your custom QR code instantly.
-      </p>
-    </div>
-
-    <!-- Live Mockup Demonstration -->
-    <div class="mockup-container">
-      <div class="landing-mockup">
-        <!-- Displaying placeholder data, or a preview -->
-        <div style="padding: 2.5rem 1.5rem; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; background: radial-gradient(circle, #1a1b2f 0%, #0d0e15 100%);">
-          <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #06b6d4); margin: 0 auto 1rem auto; display: flex; align-items: center; justify-content: center; font-size: 2rem;">🦄</div>
-          <h3 style="font-size: 1.4rem; color: #fff; margin-bottom: 0.25rem;">Alex Creator</h3>
-          <p style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 1.5rem;">Visual Artist & YouTuber</p>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%;">
-            <div style="background: rgba(255,255,255,0.06); padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600; font-size: 0.9rem;">🎥 Watch My Latest Video</div>
-            <div style="background: rgba(255,255,255,0.06); padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600; font-size: 0.9rem;">🛍️ Shop My Merch</div>
-            <div style="background: rgba(255,255,255,0.06); padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600; font-size: 0.9rem;">💬 Text Me on WhatsApp</div>
+      <!-- Social Proof -->
+      <div class="social-proof-row">
+        <div class="avatar-circles">
+          <img src="/images/zaid_avatar.png" alt="User">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop" alt="User">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop" alt="User">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop" alt="User">
+        </div>
+        <div class="proof-text">
+          <div>
+            <i class="fa-solid fa-star stars"></i>
+            <i class="fa-solid fa-star stars"></i>
+            <i class="fa-solid fa-star stars"></i>
+            <i class="fa-solid fa-star stars"></i>
+            <i class="fa-solid fa-star stars"></i>
+            <strong>5.0/5</strong> Rating
           </div>
-          <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; color: #a0aec0; font-size: 1.1rem;">
-            <span>📸</span> <span>🐦</span> <span>🎵</span>
-          </div>
+          Trusted by 5,000+ creators and professionals
         </div>
       </div>
     </div>
+
+    <!-- Live Mockup Block -->
+    <div class="hero-mockup-block">
+      
+      <!-- Category Tabs Selector -->
+      <div class="mockup-header-tabs">
+        <button class="tab-btn active" onclick="setMockPreview('portfolio')">💼 Portfolio</button>
+        <button class="tab-btn" onclick="setMockPreview('business')">☕ Small Biz</button>
+        <button class="tab-btn" onclick="setMockPreview('creator')">✈️ Creator</button>
+        <button class="tab-btn" onclick="setMockPreview('student')">🎓 Student</button>
+      </div>
+
+      <!-- Smartphone Preview Frame -->
+      <div class="landing-mockup-wrapper">
+        <div class="mockup-inner mock-corporate-navy" id="mock-preview-viewport">
+          
+          <div class="mock-avatar-container">
+            <img id="mock-avatar-img" src="/images/zaid_avatar.png" alt="Avatar" class="mock-avatar">
+            <div class="mock-badge" id="mock-verify-badge">
+              <i class="fa-solid fa-check"></i>
+            </div>
+          </div>
+
+          <h2 class="mock-name" id="mock-name-txt">Zaid Khan <i class="fa-solid fa-circle-check" style="color:#00b4d8; font-size:0.85rem;"></i></h2>
+          <div class="mock-sub" id="mock-sub-txt">Software Engineer | Tech Enthusiast</div>
+          <p class="mock-bio" id="mock-bio-txt">Building solutions, sharing knowledge, and creating impact through technology.</p>
+
+          <div class="mock-socials" id="mock-socials-row">
+            <a href="#"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#"><i class="fa-brands fa-youtube"></i></a>
+            <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+            <a href="#"><i class="fa-brands fa-github"></i></a>
+            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+          </div>
+
+          <div class="mock-links-container" id="mock-links-holder">
+            <!-- Dynamic links load here -->
+          </div>
+
+          <div class="mock-contact" id="mock-contact-btn">
+            <i class="fa-regular fa-envelope"></i> Contact Me
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
   </main>
 
-  <!-- Features Grid Section -->
-  <section class="features-section">
-    <div class="features-container">
-      <h2>Everything You Need in One Place</h2>
-      <div class="features-grid">
-        
-        <div class="feature-card">
-          <div class="feature-icon">⛓️</div>
-          <h3>Link Management</h3>
-          <p>Add, edit, delete and drag-and-drop to reorder links in real-time. Instantly see how your visitors will view them.</p>
-        </div>
+  <!-- Pitch Section -->
+  <section class="pitch-section" id="features">
+    <div class="pitch-title">
+      <h2>Everything You Need to Share Yourself</h2>
+      <p>A simple dashboard with powerful, pro-grade functionality built for your workflow.</p>
+    </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🎨</div>
-          <h3>Stunning Custom Themes</h3>
-          <p>Choose from pre-designed templates with smooth CSS gradients, glassmorphism, or high-contrast neo-brutalist designs.</p>
+    <div class="pitch-grid">
+      
+      <div class="pitch-card">
+        <div class="pitch-icon">
+          <i class="fa-solid fa-layer-group"></i>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3>Real-time Analytics</h3>
-          <p>Keep track of page views, referral sources, and button clicks with integrated visual SVG dashboards and charts.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">📱</div>
-          <h3>100% Mobile Ready</h3>
-          <p>Perfect rendering on iOS, Android, tablets and computers. Your links page loads instantly and feels premium.</p>
-        </div>
-
+        <h3>All-in-One Link</h3>
+        <p>Combine multiple items—external buttons, custom text separator headings, and live responsive YouTube embeds—into a single web url.</p>
       </div>
+
+      <div class="pitch-card">
+        <div class="pitch-icon">
+          <i class="fa-solid fa-sliders"></i>
+        </div>
+        <h3>Fully Customizable</h3>
+        <p>Break out of basic themes. Tweak custom background colors, linear gradients, card corner shapes (rounded, capsule, sharp), and serif/sans fonts.</p>
+      </div>
+
+      <div class="pitch-card">
+        <div class="pitch-icon">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h3>Track & Analyze</h3>
+        <p>Log total page views, link clicks, top referrers, and map your monthly performance on a hand-drawn SVG chart.</p>
+      </div>
+
+      <div class="pitch-card">
+        <div class="pitch-icon">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+        </div>
+        <h3>Mobile Optimized</h3>
+        <p>Engineered to adapt automatically. Looks stunning inside simulated iframe viewers and provides fast loading on actual phone viewports.</p>
+      </div>
+
+      <div class="pitch-card">
+        <div class="pitch-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3>Secure & Reliable</h3>
+        <p>Built with Bcrypt credentials encryption, MySQL transaction pools, and automatic routing controls to keep your bio pages protected.</p>
+      </div>
+
     </div>
   </section>
 
   <!-- Footer -->
-  <footer style="padding: 2.5rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; color: #718096;">
-    <p>&copy; 2026 Build Your Link Inc. Created for local developer verification.</p>
+  <footer style="padding:3rem 2rem; text-align:center; border-top:1px solid rgba(255,255,255,0.05); font-size:0.9rem; color:#64748b;">
+    <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+      <p style="font-weight:600; color:#e2e8f0;">&copy; 2026 Build Your Link. All rights reserved.</p>
+      <div style="display:flex; gap:1.5rem;">
+        <a href="#" style="transition:color 0.2s;">Terms of Service</a>
+        <a href="#" style="transition:color 0.2s;">Privacy Policy</a>
+      </div>
+    </div>
   </footer>
 
   <script>
-    // Handle redirecting username claim
+    // Data templates for the interactive landing page mockups
+    const mockData = {
+      portfolio: {
+        themeClass: 'mock-corporate-navy',
+        avatar: '/images/zaid_avatar.png',
+        name: 'Zaid Khan',
+        sub: 'Software Engineer | Tech Enthusiast',
+        bio: 'Building solutions, sharing knowledge, and creating impact through technology.',
+        verified: true,
+        socials: [
+          'fa-instagram', 'fa-youtube', 'fa-linkedin', 'fa-github', 'fa-twitter'
+        ],
+        links: [
+          { icon: 'fa-solid fa-globe', title: 'My Portfolio' },
+          { icon: 'fa-brands fa-youtube', title: 'YouTube Channel' },
+          { icon: 'fa-brands fa-linkedin', title: 'LinkedIn Profile' },
+          { icon: 'fa-brands fa-github', title: 'GitHub Repositories' },
+          { icon: 'fa-brands fa-instagram', title: 'Instagram' }
+        ]
+      },
+      business: {
+        themeClass: 'mock-sage-portfolio',
+        avatar: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=150',
+        name: 'The Green Bean',
+        sub: 'Artisanal Coffee & Bakery',
+        bio: 'Sourcing premium organic coffee beans. Fresh pastries baked daily. Order online!',
+        verified: true,
+        socials: [
+          'fa-instagram', 'fa-facebook', 'fa-whatsapp'
+        ],
+        links: [
+          { icon: 'fa-solid fa-book-open', title: '📖 View Our Menu' },
+          { icon: 'fa-solid fa-mug-hot', title: '☕ Place Online Order' },
+          { icon: 'fa-solid fa-map-location-dot', title: '📍 Location & Hours' },
+          { icon: 'fa-solid fa-gift', title: '🎁 Buy Gift Cards' }
+        ]
+      },
+      creator: {
+        themeClass: 'mock-midnight-premium',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        name: 'Maya Vlogs',
+        sub: 'Lifestyle & Travel Creator',
+        bio: 'Exploring the world, one city at a time. New vlogs every Tuesday & Friday!',
+        verified: true,
+        socials: [
+          'fa-instagram', 'fa-youtube', 'fa-tiktok', 'fa-twitter'
+        ],
+        links: [
+          { icon: 'fa-solid fa-video', title: '🎥 Watch My Latest Vlog' },
+          { icon: 'fa-solid fa-camera', title: '🛒 Shop My Camera Gear' },
+          { icon: 'fa-solid fa-plane-departure', title: '✈️ Travel Guides & Presets' },
+          { icon: 'fa-solid fa-handshake', title: '🤝 Brand Partnerships' }
+        ]
+      },
+      student: {
+        themeClass: 'mock-warm-editorial',
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+        name: 'Jane Doe',
+        sub: 'NYU Computer Science',
+        bio: 'Matcha lover. Frontend developer. Exploring web accessibility and AI agents.',
+        verified: false,
+        socials: [
+          'fa-github', 'fa-linkedin', 'fa-twitter'
+        ],
+        links: [
+          { icon: 'fa-solid fa-pen-fancy', title: '📝 Read My Tech Blog' },
+          { icon: 'fa-solid fa-code', title: '💻 GitHub Repositories' },
+          { icon: 'fa-solid fa-file-pdf', title: '📄 Resume / CV' }
+        ]
+      }
+    };
+
+    function setMockPreview(category) {
+      // Toggle active tabs
+      const btns = document.querySelectorAll('.tab-btn');
+      btns.forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(btns).find(btn => btn.textContent.toLowerCase().includes(category === 'business' ? 'biz' : category));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const data = mockData[category];
+      const viewport = document.getElementById('mock-preview-viewport');
+      
+      // Update theme classes
+      viewport.className = 'mockup-inner ' + data.themeClass;
+      
+      // Update elements
+      document.getElementById('mock-avatar-img').src = data.avatar;
+      
+      // Verification badge
+      const verifyBadge = document.getElementById('mock-verify-badge');
+      if (data.verified) {
+        verifyBadge.style.display = 'flex';
+        document.getElementById('mock-name-txt').innerHTML = data.name + ` <i class="fa-solid fa-circle-check" style="color:var(--accent-color, #00b4d8); font-size:0.85rem;"></i>`;
+      } else {
+        verifyBadge.style.display = 'none';
+        document.getElementById('mock-name-txt').textContent = data.name;
+      }
+      
+      document.getElementById('mock-sub-txt').textContent = data.sub;
+      document.getElementById('mock-bio-txt').textContent = data.bio;
+
+      // Update socials
+      const socialsRow = document.getElementById('mock-socials-row');
+      socialsRow.innerHTML = '';
+      data.socials.forEach(s => {
+        const a = document.createElement('a');
+        a.href = '#';
+        // Make mapping simple
+        let iconClass = 'fa-brands fa-' + s.replace('fa-', '');
+        if (s === 'fa-whatsapp') iconClass = 'fa-brands fa-whatsapp';
+        a.innerHTML = `<i class="${iconClass}"></i>`;
+        socialsRow.appendChild(a);
+      });
+
+      // Update links list
+      const linksHolder = document.getElementById('mock-links-holder');
+      linksHolder.innerHTML = '';
+      data.links.forEach(l => {
+        const linkDiv = document.createElement('div');
+        linkDiv.className = 'mock-link';
+        linkDiv.innerHTML = `
+          <div><i class="${l.icon} left-icon" style="color:var(--accent-color);"></i> ${l.title}</div>
+          <i class="fa-solid fa-chevron-right right-arrow"></i>
+        `;
+        linksHolder.appendChild(linkDiv);
+      });
+    }
+
+    // Initialize mock preview
+    setMockPreview('portfolio');
+
+    // Handle claim form submit
     document.getElementById('claim-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const username = document.getElementById('claim-username').value.trim();
@@ -112,15 +884,15 @@
       }
     });
 
-    // Check if user is already logged in, update header
+    // Check auth status to render Go to Dashboard in navigation
     fetch('/api/auth/status')
       .then(res => res.json())
       .then(data => {
         if (data.loggedIn) {
           const linksHtml = `
-            <li><a href="/dashboard.html" class="nav-btn primary">Go to Dashboard</a></li>
-            ${data.user.role === 'admin' ? '<li><a href="/admin.html" class="nav-btn secondary">Admin Panel</a></li>' : ''}
-            <li><button onclick="logout()" class="nav-btn secondary" style="cursor:pointer; background:none;">Log Out</button></li>
+            <a href="/dashboard.html" class="landing-btn primary">Go to Dashboard</a>
+            ${data.user.role === 'admin' ? '<a href="/admin.html" class="landing-btn secondary">Admin Panel</a>' : ''}
+            <button onclick="logout()" class="landing-btn secondary" style="cursor:pointer;">Log Out</button>
           `;
           document.getElementById('nav-links').innerHTML = linksHtml;
         }
