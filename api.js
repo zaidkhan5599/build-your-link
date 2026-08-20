@@ -294,17 +294,29 @@ router.get('/analytics', requireAuth, async (req, res) => {
 
     // 2. Daily breakdown for the last 7 days (Views & Clicks)
     // We calculate dates dynamically to ensure timezone friendliness
-    const dailyStats = await db.query(
-      `SELECT 
-        DATE_FORMAT(timestamp, '%Y-%m-%d') as event_date,
-        SUM(CASE WHEN event_type = 'view' THEN 1 ELSE 0 END) as views,
-        SUM(CASE WHEN event_type = 'click' THEN 1 ELSE 0 END) as clicks
-       FROM analytics
-       WHERE user_id = ? AND timestamp >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-       GROUP BY event_date
-       ORDER BY event_date ASC`,
-      [userId]
-    );
+    const dailyStats = db.dialect === 'postgres'
+      ? await db.query(
+          `SELECT 
+            TO_CHAR(timestamp, 'YYYY-MM-DD') as event_date,
+            SUM(CASE WHEN event_type = 'view' THEN 1 ELSE 0 END) as views,
+            SUM(CASE WHEN event_type = 'click' THEN 1 ELSE 0 END) as clicks
+           FROM analytics
+           WHERE user_id = ? AND timestamp >= CURRENT_DATE - INTERVAL '7 days'
+           GROUP BY TO_CHAR(timestamp, 'YYYY-MM-DD')
+           ORDER BY event_date ASC`,
+          [userId]
+        )
+      : await db.query(
+          `SELECT 
+            DATE_FORMAT(timestamp, '%Y-%m-%d') as event_date,
+            SUM(CASE WHEN event_type = 'view' THEN 1 ELSE 0 END) as views,
+            SUM(CASE WHEN event_type = 'click' THEN 1 ELSE 0 END) as clicks
+           FROM analytics
+           WHERE user_id = ? AND timestamp >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+           GROUP BY event_date
+           ORDER BY event_date ASC`,
+          [userId]
+        );
 
     // 3. Link-by-link click counts
     const linkBreakdown = await db.query(
@@ -350,8 +362,8 @@ router.get('/admin/stats', requireAuth, requireAdmin, async (req, res) => {
   try {
     const usersCount = await db.query('SELECT COUNT(*) as count FROM users');
     const linksCount = await db.query('SELECT COUNT(*) as count FROM links');
-    const viewsCount = await db.query('SELECT COUNT(*) as count FROM analytics WHERE event_type = "view"');
-    const clicksCount = await db.query('SELECT COUNT(*) as count FROM analytics WHERE event_type = "click"');
+    const viewsCount = await db.query("SELECT COUNT(*) as count FROM analytics WHERE event_type = 'view'");
+    const clicksCount = await db.query("SELECT COUNT(*) as count FROM analytics WHERE event_type = 'click'");
 
     return res.json({
       total_users: usersCount[0].count,

@@ -72,13 +72,17 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Initialize connection and start listening
+// Initialize connection and start listening (only when run directly)
 db.dbInitialized.then(() => {
-  app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(` Build Your Link Server Running on http://localhost:${PORT}`);
-    console.log(`==================================================`);
-  });
+  if (require.main === module) {
+    app.listen(PORT, () => {
+      console.log(`==================================================`);
+      console.log(` Build Your Link Server Running on http://localhost:${PORT}`);
+      console.log(`==================================================`);
+    });
+  }
 }).catch(err => {
   console.error('Failed to start server due to database error:', err);
 });
+
+module.exports = app;

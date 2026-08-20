@@ -12,7 +12,9 @@ async function testConnection() {
     console.log('✅ Schema migration check: SUCCESS!');
     
     // Perform simple query test
-    const tables = await db.query("SHOW TABLES LIKE 'users'");
+    const tables = db.dialect === 'postgres'
+      ? await db.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename = 'users'")
+      : await db.query("SHOW TABLES LIKE 'users'");
     if (tables.length > 0) {
       console.log('✅ Integrity check: Tables exist and are responsive!');
     } else {
