@@ -6,11 +6,18 @@ require('dotenv').config();
 // This ensures COUNT(*) returns numbers instead of strings.
 types.setTypeParser(20, (val) => parseInt(val, 10));
 
-const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+const connectionString =
+  process.env.REVIEW_SYSTEM_POSTGRES_URL ||
+  process.env.SUPABASE_DATABASE_URL ||
+  process.env.SUPABASE_DB_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.DATABASE_URL;
+
 const isPostgres = !!(
   process.env.VERCEL === '1' ||
   process.env.DB_DIALECT === 'postgres' ||
   (connectionString && (connectionString.startsWith('postgres://') || connectionString.startsWith('postgresql://'))) ||
+  process.env.REVIEW_SYSTEM_POSTGRES_HOST ||
   process.env.POSTGRES_HOST ||
   process.env.POSTGRES_USER
 );
@@ -26,18 +33,23 @@ async function initDB() {
   console.log(`Database initialization started. Active dialect: ${dialect.toUpperCase()}`);
   if (dialect === 'postgres') {
     try {
-      const config = connectionString
-        ? { connectionString, ssl }
+      let cleanUrl = connectionString;
+      if (cleanUrl && !cleanUrl.includes('uselibpqcompat=')) {
+        cleanUrl += (cleanUrl.includes('?') ? '&' : '?') + 'uselibpqcompat=true';
+      }
+
+      const config = cleanUrl
+        ? { connectionString: cleanUrl, ssl }
         : {
-            host: process.env.POSTGRES_HOST || process.env.DB_HOST || '127.0.0.1',
-            port: parseInt(process.env.POSTGRES_PORT || process.env.DB_PORT || '5432'),
-            user: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
-            password: process.env.POSTGRES_PASSWORD || process.env.DB_PASSWORD || '',
-            database: process.env.POSTGRES_DATABASE || process.env.DB_NAME || 'postgres',
+            host: process.env.REVIEW_SYSTEM_POSTGRES_HOST || process.env.POSTGRES_HOST || process.env.DB_HOST || '127.0.0.1',
+            port: parseInt(process.env.REVIEW_SYSTEM_POSTGRES_PORT || process.env.POSTGRES_PORT || process.env.DB_PORT || '5432'),
+            user: process.env.REVIEW_SYSTEM_POSTGRES_USER || process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
+            password: process.env.REVIEW_SYSTEM_POSTGRES_PASSWORD || process.env.POSTGRES_PASSWORD || process.env.DB_PASSWORD || '',
+            database: process.env.REVIEW_SYSTEM_POSTGRES_DATABASE || process.env.POSTGRES_DATABASE || process.env.DB_NAME || 'postgres',
             ssl
           };
 
-      if (connectionString) {
+      if (cleanUrl) {
         console.log('Connecting to PostgreSQL database using connection string...');
       } else {
         console.log(`Connecting to PostgreSQL database at ${config.host}:${config.port}/${config.database}...`);
